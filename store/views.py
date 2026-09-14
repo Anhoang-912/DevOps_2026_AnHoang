@@ -34,64 +34,99 @@ class BulkDiscountForm(forms.Form):
 
 
 def home(request):
-    # Lấy danh mục nổi bật (ví dụ: 3 danh mục đầu tiên)
-    featured_categories = Category.objects.all()[:3]
+    # Lấy danh mục kèm số lượng sản phẩm
+    categories = Category.objects.annotate(prod_count=models.Count('product'))
+    featured_categories = categories[:4]
     
-    # Lấy tất cả danh mục để hiển thị trong bộ lọc
-    categories = Category.objects.all()
+    # Sản phẩm Flash Sale / Giảm giá sốc
+    flash_sale_products = Product.objects.filter(discount_percent__gt=0).order_by('-discount_percent')[:6]
     
-    # Lấy tất cả sản phẩm nổi bật, nhưng hiển thị theo JavaScript
-    initial_products_count = 8  # Số lượng sản phẩm hiển thị ban đầu
-    
-    # Lấy tối đa 50 sản phẩm để có thể xem thêm nhiều lần
-    featured_products = Product.objects.all()[:50]
-    
-    # Kiểm tra xem có thể tải thêm sản phẩm không
+    # Sản phẩm nổi bật
+    initial_products_count = 8
+    featured_products = Product.objects.all().order_by('-id')[:50]
     total_products = Product.objects.count()
     has_more_products = total_products > initial_products_count
-    
-    # Tính số lượng sản phẩm trong giỏ hàng nếu đã đăng nhập
-    cart_items_count = 0
-    if request.user.is_authenticated:
-        cart_items_count = CartItem.objects.filter(user=request.user).count()
     
     return render(request, 'store/home.html', {
         'featured_categories': featured_categories,
         'categories': categories,
         'featured_products': featured_products,
+        'flash_sale_products': flash_sale_products,
         'initial_products_count': initial_products_count,
         'has_more_products': has_more_products,
         'total_products': total_products,
-        'cart_items_count': cart_items_count
     })
 
 def product_list(request):
+    products = Product.objects.all()
+    
+    # Lọc theo danh mục
     category_id = request.GET.get('category')
     if category_id:
-        products = Product.objects.filter(category_id=category_id)
-    else:
-        products = Product.objects.all()
+        try:
+            products = products.filter(category_id=int(category_id))
+        except ValueError:
+            pass
 
-    # Lấy tất cả danh mục để hiển thị trong menu
-    categories = Category.objects.all()
-    
-    # Tính số lượng sản phẩm trong giỏ hàng nếu đã đăng nhập
-    cart_items_count = 0
-    if request.user.is_authenticated:
-        cart_items_count = CartItem.objects.filter(user=request.user).count()
-    
-    # Phân trang
-    paginator = Paginator(products, 6)  # 6 sản phẩm mỗi trang
+    # Lọc theo sản phẩm giảm giá
+    on_sale = request.GET.get('on_sale')
+    if on_sale == '1':
+        products = products.filter(discount_percent__gt=0)
+
+    # Lọc theo mức giá
+    price_range = request.GET.get('price_range', '')
+    if price_range == 'under_5m':
+        products = products.filter(price__lt=5000000)
+    elif price_range == '5m_15m':
+        products = products.filter(price__gte=5000000, price__lte=15000000)
+    elif price_range == '15m_30m':
+        products = products.filter(price__gte=15000000, price__lte=30000000)
+    elif price_range == 'over_30m':
+        products = products.filter(price__gt=30000000)
+
+    # Tìm kiếm theo từ khóa
+    query = request.GET.get('q', '').strip()
+    if query:
+        products = products.filter(
+            models.Q(name__icontains=query) | 
+            models.Q(description__icontains=query) |
+            models.Q(category__name__icontains=query)
+        )
+
+    # Sắp xếp
+    sort = request.GET.get('sort', 'newest')
+    if sort == 'price_asc':
+        products = products.order_by('price')
+    elif sort == 'price_desc':
+        products = products.order_by('-price')
+    elif sort == 'name':
+        products = products.order_by('name')
+    elif sort == 'discount':
+        products = products.order_by('-discount_percent')
+    else:
+        # newest
+        products = products.order_by('-id')
+
+    # Danh mục kèm số lượng sản phẩm
+    categories = Category.objects.annotate(prod_count=models.Count('product'))
+    total_products = products.count()
+
+    # Phân trang: 9 sản phẩm mỗi trang (3 cột x 3 dòng)
+    paginator = Paginator(products, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    selected_category = int(category_id) if category_id else None
+    selected_category = int(category_id) if category_id and category_id.isdigit() else None
 
     context = {
         'categories': categories,
         'page_obj': page_obj,
         'selected_category': selected_category,
-        'cart_items_count': cart_items_count
+        'total_products': total_products,
+        'current_sort': sort,
+        'current_price_range': price_range,
+        'on_sale': on_sale,
+        'query': query,
     }
     return render(request, 'store/product_list.html', context)
 
@@ -99,6 +134,14 @@ def product_list(request):
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
+    # Lấy số lượng
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity < 1:
+            quantity = 1
+    except (ValueError, TypeError):
+        quantity = 1
+
     # Lấy màu sắc từ request nếu có
     color_id = request.POST.get('color')
     color = None
@@ -108,34 +151,31 @@ def add_to_cart(request, product_id):
         except Color.DoesNotExist:
             pass
     
-    # Kiểm tra xem sản phẩm với màu đó đã có trong giỏ hàng chưa
-    if color:
-        item, created = CartItem.objects.get_or_create(
-            user=request.user, 
-            product=product,
-            color=color,
-            defaults={'quantity': 1}
-        )
-    else:
-        item, created = CartItem.objects.get_or_create(
-            user=request.user, 
-            product=product,
-            color=None,
-            defaults={'quantity': 1}
-        )
+    # Thêm hoặc cập nhật giỏ hàng
+    item, created = CartItem.objects.get_or_create(
+        user=request.user, 
+        product=product,
+        color=color,
+        defaults={'quantity': quantity}
+    )
     
     if not created:
-        item.quantity += 1
+        item.quantity += quantity
         item.save()
     
-    # Cập nhật số lượng sản phẩm trong giỏ hàng
+    # Cập nhật tổng số lượng giỏ hàng
     cart_items_count = CartItem.objects.filter(user=request.user).count()
     
+    # Kiểm tra nếu là thao tác "Mua ngay" (Buy Now)
+    buy_now = request.POST.get('buy_now') or request.GET.get('buy_now')
+    if buy_now:
+        return redirect('checkout')
+
     # Nếu là ajax request thì trả về JsonResponse
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'success',
-            'message': f"Đã thêm {product.name} vào giỏ hàng thành công!",
+            'message': f"Đã thêm {product.name} ({quantity} món) vào giỏ hàng!",
             'cart_items_count': cart_items_count
         })
     
@@ -163,44 +203,77 @@ def remove_from_cart(request, item_id):
 def checkout_form_view(request):
     items = CartItem.objects.filter(user=request.user)
     if not items.exists():
-        messages.warning(request, "Giỏ hàng của bạn đang trống!")
+        messages.warning(request, "Giỏ hàng của bạn đang trống! Vui lòng chọn sản phẩm trước khi thanh toán.")
         return redirect('cart')
 
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
             try:
+                # Xử lý thông tin địa lý linh hoạt
+                prov_val = form.cleaned_data.get('province') or request.POST.get('province', '')
+                prov_text = form.cleaned_data.get('province_text') or request.POST.get('province_text', '')
+                dist_val = form.cleaned_data.get('district') or request.POST.get('district', '')
+                dist_text = form.cleaned_data.get('district_text') or request.POST.get('district_text', '')
+                ward_val = form.cleaned_data.get('ward') or request.POST.get('ward', '')
+                ward_text = form.cleaned_data.get('ward_text') or request.POST.get('ward_text', '')
+
+                province_obj = None
+                if prov_val and prov_val.isdigit():
+                    province_obj = Province.objects.filter(id=int(prov_val)).first()
+                if not province_obj and prov_text:
+                    province_obj = Province.objects.filter(name__icontains=prov_text).first()
+
+                district_obj = None
+                if dist_val and dist_val.isdigit():
+                    district_obj = District.objects.filter(id=int(dist_val)).first()
+                if not district_obj and dist_text:
+                    district_obj = District.objects.filter(name__icontains=dist_text).first()
+
+                ward_obj = None
+                if ward_val and ward_val.isdigit():
+                    ward_obj = Ward.objects.filter(id=int(ward_val)).first()
+                if not ward_obj and ward_text:
+                    ward_obj = Ward.objects.filter(name__icontains=ward_text).first()
+
                 # Tạo đơn hàng mới
                 order = Order(
                     user=request.user,
                     full_name=form.cleaned_data['full_name'],
                     phone=form.cleaned_data['phone'],
                     address=form.cleaned_data['address'],
-                    province=form.cleaned_data['province'],
-                    district=form.cleaned_data['district'],
-                    ward=form.cleaned_data['ward'],
-                    note=form.cleaned_data['note'],
-                    payment_method=form.cleaned_data['payment_method'],
+                    province=province_obj,
+                    district=district_obj,
+                    ward=ward_obj,
+                    city=prov_text or (province_obj.name if province_obj else ''),
+                    district_name=dist_text or (district_obj.name if district_obj else ''),
+                    ward_name=ward_text or (ward_obj.name if ward_obj else ''),
+                    note=form.cleaned_data.get('note', ''),
+                    payment_method=form.cleaned_data.get('payment_method') or 'cod',
                     total=sum(item.subtotal() for item in items)
                 )
-                order.save()  # Đảm bảo đơn hàng được lưu vào cơ sở dữ liệu
+                order.save()  # Lưu đơn hàng vào cơ sở dữ liệu
 
-                # Tạo các OrderItem
+                # Tạo các OrderItem chi tiết
                 for item in items:
                     OrderItem.objects.create(
                         order=order,
                         product=item.product,
                         quantity=item.quantity,
-                        price=item.product.price if not item.product.has_discount else item.product.discount_price
+                        price=item.get_unit_price()
                     )
 
-                # Xóa tất cả sản phẩm trong giỏ hàng sau khi đặt hàng thành công
+                # Xóa sạch giỏ hàng sau khi đặt thành công
                 items.delete()
 
-                messages.success(request, "Đặt hàng thành công! Cảm ơn bạn đã mua hàng.")
+                messages.success(request, f"🎉 Đặt hàng thành công! Mã đơn hàng của bạn là #{order.id}. Quản trị viên đã nhận được đơn hàng.")
                 return redirect('order_detail', order_id=order.id)
             except Exception as e:
-                messages.error(request, f"Có lỗi xảy ra khi đặt hàng: {str(e)}")
+                messages.error(request, f"Có lỗi xảy ra khi tạo đơn hàng: {str(e)}")
+        else:
+            for field, errs in form.errors.items():
+                for err in errs:
+                    messages.error(request, f"Lỗi {field}: {err}")
     else:
         form = CheckoutForm()
     
@@ -461,12 +534,30 @@ def product_detail(request, product_id):
             messages.success(request, 'Đánh giá của bạn đã được gửi thành công!')
             return redirect('product_detail', product_id=product_id)
     
+    # Lấy sản phẩm tương tự cùng danh mục
+    related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
+    
+    # Tính phân bố đánh giá
+    total_reviews = reviews.count()
+    rating_breakdown = []
+    for star in range(5, 0, -1):
+        count = reviews.filter(rating=star).count()
+        percent = round((count / total_reviews * 100) if total_reviews > 0 else 0)
+        rating_breakdown.append({
+            'star': star,
+            'count': count,
+            'percent': percent,
+        })
+
     return render(request, 'store/product_detail.html', {
         'product': product,
         'reviews': reviews,
         'avg_rating': avg_rating,
         'colors': colors,
-        'color_images': color_images
+        'color_images': color_images,
+        'related_products': related_products,
+        'total_reviews': total_reviews,
+        'rating_breakdown': rating_breakdown,
     })
 
 @login_required

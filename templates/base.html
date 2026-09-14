@@ -1,667 +1,691 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>{% block title %}Cửa hàng{% endblock %}</title>
+    <title>{% block title %}An Hoang Store | Mua Sắm Trực Tuyến Uy Tín{% endblock %}</title>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap 5.3.0 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
         :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #333;
-            --accent-color: #e74c3c;
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #e0e7ff;
+            --secondary: #0ea5e9;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --light-bg: #f8fafc;
+            --card-border: #e2e8f0;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 6px 20px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-top: 70px;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 76px;
         }
 
+        /* Modern Glassmorphic Navbar */
         .navbar {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 15px 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            padding: 12px 0;
         }
 
         .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-            color: var(--primary-color) !important;
+            font-weight: 800;
+            font-size: 1.45rem;
+            color: var(--primary) !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.02em;
         }
 
-        .nav-link {
-            color: var(--secondary-color) !important;
-            font-weight: 500;
-            padding: 8px 15px !important;
-            margin: 0 5px;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background-color: var(--primary-color);
-            color: white !important;
-        }
-
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white !important;
-        }
-
-        .cart-icon {
-            position: relative;
-        }
-
-        .cart-count {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: #e74c3c;
+        .navbar-brand .brand-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            animation: pulse 1.5s infinite;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
         }
-        
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            }
+
+        .nav-link {
+            color: #334155 !important;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary) !important;
+            background-color: var(--primary-light);
+        }
+
+        /* Search input in navbar */
+        .nav-search-form {
+            position: relative;
+            min-width: 260px;
+        }
+
+        .nav-search-input {
+            border-radius: 24px;
+            padding: 7px 18px 7px 36px;
+            font-size: 0.88rem;
+            border: 1px solid var(--card-border);
+            background-color: #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .nav-search-input:focus {
+            background-color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .nav-search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        /* Cart Icon with Counter */
+        .cart-icon-btn {
+            position: relative;
+            background: #f1f5f9;
+            border: 1px solid var(--card-border);
+            color: #1e293b !important;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .cart-icon-btn:hover {
+            background: var(--primary);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        /* User Dropdown */
+        .user-dropdown-btn {
+            background: #f8fafc;
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 4px 14px 4px 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1e293b;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .user-dropdown-btn:hover {
+            background: #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+            color: var(--primary);
+        }
+
+        .user-nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
         }
 
         .dropdown-menu {
-            border: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            padding: 10px;
-            transform-origin: top center;
-            animation: dropdown-animation 0.3s ease forwards;
-            transition: opacity 0.15s ease-in-out, transform 0.2s ease-out;
-            opacity: 1;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-md);
+            padding: 8px;
+            min-width: 230px;
+            animation: fadeInDrop 0.2s ease forwards;
         }
-        
-        .dropdown-hover {
-            background-color: rgba(74, 144, 226, 0.1) !important;
-            transform: scale(1.02);
-            transition: all 0.2s ease;
-        }
-        
-        .dropdown-item {
-            transition: all 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
-        }
-        
-        .dropdown-menu-mobile {
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        @keyframes dropdown-animation {
-            0% {
-                opacity: 0;
-                transform: translateY(-10px) scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+
+        @keyframes fadeInDrop {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .dropdown-item {
-            padding: 10px 20px;
-            transition: all 0.3s ease;
             border-radius: 8px;
-            margin-bottom: 5px;
+            padding: 9px 14px;
             font-weight: 500;
+            font-size: 0.9rem;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .dropdown-item i {
+            width: 18px;
+            text-align: center;
+            color: #64748b;
         }
 
         .dropdown-item:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
+            background-color: var(--primary-light);
+            color: var(--primary);
         }
-        
-        .dropdown-item:active, 
-        .dropdown-item:focus {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .dropdown-item i {
-            width: 20px;
-            text-align: center;
-            margin-right: 8px;
-            transition: all 0.3s ease;
-        }
-        
+
         .dropdown-item:hover i {
-            transform: scale(1.2);
+            color: var(--primary);
         }
 
-        .user-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin-right: 8px;
-            object-fit: cover;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-        }
-        
-        .nav-link:hover .user-avatar {
-            transform: scale(1.1);
-            border-color: white;
+        .admin-badge-pill {
+            background: #ecfdf5;
+            color: #059669;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 12px;
+            margin-left: auto;
         }
 
-        @media (max-width: 991px) {
-            .navbar-collapse {
-                background-color: white;
-                padding: 15px;
-                border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-                margin-top: 10px;
-            }
-
-            .nav-link {
-                margin: 5px 0;
-            }
+        /* Floating Toast Container */
+        .toast-container-custom {
+            position: fixed;
+            top: 86px;
+            right: 24px;
+            z-index: 1090;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
         }
 
-        .dropdown-item.active {
-            background-color: rgba(74, 144, 226, 0.1);
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .dropdown-item.active i {
-            color: var(--primary-color);
-        }
-
-        .dropdown-divider {
-            margin: 8px 0;
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-
-        /* User menu dropdown mới */
-        .user-menu-toggle {
-            cursor: pointer;
-            position: relative;
+        .custom-toast {
+            pointer-events: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 14px 18px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+            border: 1px solid var(--card-border);
             display: flex;
             align-items: center;
-            padding: 8px 15px;
-            background-color: var(--primary-color);
-            color: white !important;
-            border-radius: 20px;
-            box-shadow: 0 3px 10px rgba(74, 144, 226, 0.3);
+            gap: 12px;
+            min-width: 300px;
+            max-width: 420px;
+            animation: slideInToast 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             transition: all 0.3s ease;
         }
 
-        .user-menu-toggle:hover {
-            background-color: #3a7bc8;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        @keyframes slideInToast {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
-        .user-menu-toggle .fa-chevron-down {
-            font-size: 0.8rem;
-            transition: transform 0.3s ease;
-            margin-left: 5px;
-        }
-
-        .user-menu-toggle.active {
-            background-color: #3a7bc8;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
-        }
-
-        .user-menu-toggle.active .fa-chevron-down {
-            transform: rotate(180deg);
-        }
-
-        .user-menu-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-            padding: 10px 0;
-            min-width: 200px;
-            z-index: 1050;
+        .custom-toast.hide {
+            transform: translateX(120%);
             opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
         }
 
-        .user-menu-dropdown:before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            right: 20px;
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 10px solid white;
-        }
-
-        .user-menu-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .user-menu-item {
+        .custom-toast-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            padding: 10px 20px;
-            color: var(--secondary-color);
-            font-weight: 500;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .toast-success .custom-toast-icon {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .toast-error .custom-toast-icon {
+            background: #ffe4e6;
+            color: #e11d48;
+        }
+
+        .toast-info .custom-toast-icon {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        /* Main Content */
+        main {
+            flex-grow: 1;
+        }
+
+        /* Modern Footer */
+        footer {
+            background: #0f172a;
+            color: #94a3b8;
+            margin-top: 60px;
+            padding-top: 50px;
+            border-top: 1px solid #1e293b;
+        }
+
+        footer h5 {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+        }
+
+        footer a {
+            color: #94a3b8;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: color 0.2s ease;
         }
 
-        .user-menu-item:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateX(5px);
+        footer a:hover {
+            color: #ffffff;
         }
 
-        .user-menu-item.active {
-            background-color: rgba(74, 144, 226, 0.1);
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .user-menu-item i {
-            width: 20px;
-            margin-right: 10px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .user-menu-item:hover i {
-            transform: scale(1.2);
-        }
-
-        .user-menu-divider {
-            height: 1px;
-            background-color: rgba(0,0,0,0.1);
-            margin: 8px 0;
-        }
-
-        @media (max-width: 991px) {
-            .user-menu-dropdown {
-                position: static;
-                box-shadow: none;
-                border-radius: 0;
-                padding-left: 20px;
-                width: 100%;
-            }
-        }
-
-        .user-menu-toggle .user-avatar {
-            width: 30px;
-            height: 30px;
+        .footer-social-btn {
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
+            background: #1e293b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
             margin-right: 8px;
-            object-fit: cover;
-            border: 2px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             transition: all 0.2s ease;
         }
 
-        .user-menu-toggle:hover .user-avatar {
-            transform: scale(1.1);
+        .footer-social-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+            transform: translateY(-2px);
         }
 
-        /* User dropdown chỉ sử dụng CSS */
-        .user-dropdown {
-            position: relative;
-        }
-
-        .user-menu-content {
-            position: absolute;
-            top: calc(100% + 5px);
-            right: 0;
-            background-color: white;
+        .footer-trust-badge {
+            background: #1e293b;
+            border: 1px solid #334155;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-            padding: 10px 0;
-            min-width: 220px;
-            z-index: 1050;
-            display: none;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-        }
-
-        .user-menu-content.show {
-            display: block;
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        @media (max-width: 991px) {
-            .user-menu-content {
-                position: static;
-                display: none;
-                width: 100%;
-                box-shadow: none;
-                border-radius: 0;
-                padding-left: 15px;
-                margin-top: 10px;
-            }
-            
-            .user-menu-content:before {
-                display: none;
-            }
-            
-            .user-dropdown {
-                width: 100%;
-            }
-            
-            /* Xóa rule hover cho mobile */
-            /* .user-dropdown:hover .user-menu-content {
-                display: block;
-            } */
-            
-            /* Thêm rule show cho mobile */
-            .user-menu-content.show {
-                display: block;
-            }
-            
-            .user-menu-item {
-                padding: 8px 15px;
-            }
-        }
-
-        .user-menu-content:before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            right: 20px;
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 10px solid white;
-        }
-
-        /* Admin dropdown với checkbox hack - không cần JavaScript */
-        .dropdown-hack {
-            position: relative;
-        }
-
-        .admin-toggle {
-            display: none; /* Ẩn checkbox */
-        }
-
-        .admin-btn {
-            background-color: var(--primary-color);
-            color: white !important;
-            border-radius: 20px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            padding: 8px 15px;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            gap: 12px;
         }
 
-        .admin-btn:hover {
-            background-color: #3a7bc8;
+        .footer-trust-badge i {
+            font-size: 1.4rem;
+            color: var(--secondary);
         }
 
-        .admin-btn .fa-chevron-down {
-            transition: transform 0.3s;
-        }
-
-        .admin-toggle:checked + .admin-btn .fa-chevron-down {
-            transform: rotate(180deg);
-        }
-
-        .admin-menu {
-            position: absolute;
-            top: 55px;
-            right: 0;
-            background: white;
-            width: 220px;
-            border-radius: 8px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            z-index: 1050;
-        }
-
-        .admin-toggle:checked ~ .admin-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .admin-menu::before {
-            content: "";
-            position: absolute;
-            top: -10px;
-            right: 20px;
-            border-width: 0 10px 10px 10px;
-            border-style: solid;
-            border-color: transparent transparent white transparent;
-        }
-
-        .admin-menu-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .admin-menu-item:hover {
-            background-color: #f0f7ff;
-            color: var(--primary-color);
-        }
-
-        .admin-menu-item i {
-            margin-right: 10px;
-            width: 16px;
-            text-align: center;
-        }
-
-        .admin-menu-divider {
-            height: 1px;
-            background-color: #eee;
-            margin: 5px 0;
-        }
-
-        @media (max-width: 991px) {
-            .admin-menu {
-                position: static;
-                width: 100%;
-                box-shadow: none;
-                margin-top: 10px;
-                padding-left: 15px;
-            }
-            
-            .admin-menu::before {
-                display: none;
-            }
+        .footer-bottom {
+            border-top: 1px solid #1e293b;
+            padding: 20px 0;
+            margin-top: 40px;
+            font-size: 0.88rem;
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Toast Notifications Container -->
+    <div class="toast-container-custom" id="toastContainer"></div>
+
+    <!-- Django Messages -> Toast Conversion -->
     {% if messages %}
-<div class="container mt-3">
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    {% endfor %}
-</div>
-{% endif %}
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+                showAppToast("{{ message }}", "{{ message.tags }}");
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
+            <!-- Brand Logo -->
             <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-shopping-bag"></i> An Hoang
+                <div class="brand-icon">
+                    <i class="fas fa-bag-shopping"></i>
+                </div>
+                <span>An Hoang</span>
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+
+            <!-- Mobile Toggler -->
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <i class="fas fa-bars text-dark fs-4"></i>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+            <!-- Navbar Menu -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <!-- Main Links -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
                     <li class="nav-item">
                         <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">
                             <i class="fas fa-home"></i> Trang chủ
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if 'product' in request.path %}active{% endif %}" href="{% url 'product_list' %}">
-                            <i class="fas fa-box"></i> Sản phẩm
+                        <a class="nav-link {% if 'product' in request.path and not 'add-product' in request.path %}active{% endif %}" href="{% url 'product_list' %}">
+                            <i class="fas fa-layer-group"></i> Tất cả sản phẩm
                         </a>
+                    </li>
+                    
+                    <!-- Categories Dropdown in Nav -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-th-large"></i> Danh mục
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for cat in nav_categories %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'product_list' %}?category={{ cat.id }}">
+                                    <i class="fas fa-chevron-right text-primary" style="font-size: 11px;"></i> {{ cat.name }}
+                                </a>
+                            </li>
+                            {% empty %}
+                            <li><span class="dropdown-item text-muted">Đang cập nhật...</span></li>
+                            {% endfor %}
+                        </ul>
                     </li>
                 </ul>
 
-                <ul class="navbar-nav">
+                <!-- Navbar Search Bar -->
+                <form class="nav-search-form me-3 d-none d-md-block" action="{% url 'product_list' %}" method="get">
+                    <i class="fas fa-search nav-search-icon"></i>
+                    <input type="text" name="q" class="form-control nav-search-input" placeholder="Tìm điện thoại, laptop..." value="{{ request.GET.q|default:'' }}">
+                </form>
+
+                <!-- Right Actions: Cart & User -->
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Cart Button -->
+                    <a href="{% url 'cart' %}" class="cart-icon-btn" title="Giỏ hàng của bạn">
+                        <i class="fas fa-cart-shopping"></i>
+                        <span class="cart-badge" id="cartCountBadge" style="{% if not cart_items_count or cart_items_count == 0 %}display:none;{% endif %}">
+                            {{ cart_items_count|default:0 }}
+                        </span>
+                    </a>
+
+                    <!-- User Menu -->
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown-hack">
-                            <input type="checkbox" id="admin-toggle" class="admin-toggle">
-                            <label for="admin-toggle" class="nav-link admin-btn">
-                                {% if user.profile.avatar %}
-                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="user-avatar">
-                                {% else %}
-                                    <img src="https://via.placeholder.com/30" alt="{{ user.username }}" class="user-avatar">
-                                {% endif %}
-                                {{ user.username }} <i class="fas fa-chevron-down ms-1"></i>
-                            </label>
-                            <div class="admin-menu">
-                                <a class="admin-menu-item {% if 'account_profile' in request.path %}active{% endif %}" href="{% url 'account_profile' %}">
-                                    <i class="fas fa-user"></i> Thông tin cá nhân
+                    <div class="dropdown">
+                        <a href="#" class="user-dropdown-btn dropdown-toggle" data-bs-toggle="dropdown">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="user-nav-avatar">
+                            {% else %}
+                                <div class="user-nav-avatar d-flex align-items-center justify-content-center bg-primary text-white" style="font-size: 12px;">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                            {% endif %}
+                            <span class="d-none d-sm-inline">{{ user.first_name|default:user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <div class="px-3 py-2 border-bottom">
+                                    <div class="fw-bold text-dark">{{ user.get_full_name|default:user.username }}</div>
+                                    <small class="text-muted">@{{ user.username }}</small>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'account_profile' %}">
+                                    <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
                                 </a>
-                                <a class="admin-menu-item {% if 'order_history' in request.path %}active{% endif %}" href="{% url 'order_history' %}">
-                                    <i class="fas fa-history"></i> Lịch sử đơn hàng
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'order_history' %}">
+                                    <i class="fas fa-box-open"></i> Lịch sử đơn hàng
                                 </a>
-                                <div class="admin-menu-divider"></div>
-                                <a class="admin-menu-item" href="{% url 'logout' %}">
-                                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                            </li>
+                            
+                            {% if user.is_staff %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'admin:index' %}" target="_blank">
+                                    <i class="fas fa-gauge-high text-primary"></i> Trang Quản Trị
+                                    <span class="admin-badge-pill">Admin</span>
                                 </a>
-                            </div>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link cart-icon" href="{% url 'cart' %}">
-                                <i class="fas fa-shopping-cart"></i>
-                                {% if cart_items_count > 0 %}   
-                                    <span class="cart-count">{{ cart_items_count }}</span>
-                                {% endif %}
-                            </a>
-                        </li>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'add_product' %}">
+                                    <i class="fas fa-plus-circle text-success"></i> Thêm sản phẩm
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                    <i class="fas fa-arrow-right-from-bracket text-danger"></i> Đăng xuất
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">
-                                <i class="fas fa-user"></i> Đăng nhập
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">
-                                <i class="fas fa-user-plus"></i> Đăng ký
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link cart-icon" href="{% url 'cart' %}">
-                                <i class="fas fa-shopping-cart"></i>
-                                {% if cart_items_count > 0 %}
-                                    <span class="cart-count">{{ cart_items_count }}</span>
-                                {% endif %}
-                            </a>
-                        </li>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm px-3 rounded-pill fw-semibold">
+                            <i class="fas fa-user me-1"></i> Đăng nhập
+                        </a>
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-sm px-3 rounded-pill fw-semibold">
+                            Đăng ký
+                        </a>
+                    </div>
                     {% endif %}
-                </ul>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <!-- Main Page Content -->
+    <main>
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
+    <!-- Chat Bubble (Support) -->
     {% include 'store/chat_bubble.html' %}
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    <script>
-    // Các chức năng JavaScript khác nếu cần
-    document.addEventListener('DOMContentLoaded', function() {
-        // Placeholder for other functionality
-        console.log('DOM content loaded');
-    });
-    </script>
-    
-    {% block extra_js %}{% endblock %}
-    <footer class="bg-light text-center text-lg-start mt-5 border-top shadow-sm">
-        <div class="container p-4">
-            <div class="row">
-                <!-- Thông tin cửa hàng -->
-                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase text-primary">Về chúng tôi</h5>
-                    <p>
-                        Chúng tôi cung cấp những sản phẩm chất lượng với giá tốt nhất. Sự hài lòng của bạn là niềm vui của chúng tôi.
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <!-- Col 1: Store Intro -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="brand-icon" style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #4f46e5, #0ea5e9); display:flex; align-items:center; justify-content:center; color:white;">
+                            <i class="fas fa-bag-shopping"></i>
+                        </div>
+                        <span class="fs-4 fw-bold text-white">An Hoang Store</span>
+                    </div>
+                    <p class="small text-secondary mb-4">
+                        Hệ thống cung cấp thiết bị công nghệ chính hãng, điện thoại, máy tính bảng và laptop hàng đầu với chính sách bảo hành 1 đổi 1 chu đáo.
                     </p>
+                    <div class="d-flex">
+                        <a href="#" class="footer-social-btn"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer-social-btn"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="footer-social-btn"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
+                    </div>
                 </div>
-    
-                <!-- Liên kết nhanh -->
-                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase text-primary">Liên kết nhanh</h5>
-                    <ul class="list-unstyled mb-0">
-                        <li><a href="{% url 'home' %}" class="text-dark text-decoration-none">Trang chủ</a></li>
-                        <li><a href="{% url 'product_list' %}" class="text-dark text-decoration-none">Sản phẩm</a></li>
-                        <li><a href="{% url 'cart' %}" class="text-dark text-decoration-none">Giỏ hàng</a></li>
-                        <li><a href="{% url 'login' %}" class="text-dark text-decoration-none">Tài khoản</a></li>
+
+                <!-- Col 2: Quick Links -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h5>Liên kết nhanh</h5>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        <li><a href="{% url 'home' %}"><i class="fas fa-angle-right me-1"></i> Trang chủ</a></li>
+                        <li><a href="{% url 'product_list' %}"><i class="fas fa-angle-right me-1"></i> Sản phẩm</a></li>
+                        <li><a href="{% url 'cart' %}"><i class="fas fa-angle-right me-1"></i> Giỏ hàng</a></li>
+                        <li><a href="{% url 'order_history' %}"><i class="fas fa-angle-right me-1"></i> Tra cứu đơn hàng</a></li>
                     </ul>
                 </div>
-    
-                <!-- Liên hệ -->
-                <div class="col-lg-4 col-md-12 mb-4 mb-md-0">
-                    <h5 class="text-uppercase text-primary">Liên hệ</h5>
-                    <p><i class="fas fa-phone me-2"></i> 0912 256 789</p>
-                    <p><i class="fas fa-envelope me-2"></i> support@shop.com</p>
-                    <p><i class="fas fa-map-marker-alt me-2"></i> 123 Đường ABC, TP XYZ</p>
+
+                <!-- Col 3: Categories -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h5>Danh mục</h5>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        {% for cat in nav_categories|slice:":5" %}
+                        <li><a href="{% url 'product_list' %}?category={{ cat.id }}"><i class="fas fa-angle-right me-1"></i> {{ cat.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Col 4: Trust Badges & Contact -->
+                <div class="col-lg-4 col-md-6">
+                    <h5>Cam kết chất lượng</h5>
+                    <div class="footer-trust-badge">
+                        <i class="fas fa-truck-fast"></i>
+                        <div>
+                            <div class="text-white fw-bold small">Miễn phí giao hàng toàn quốc</div>
+                            <small class="text-secondary">Áp dụng cho mọi đơn từ 500.000 VNĐ</small>
+                        </div>
+                    </div>
+                    <div class="footer-trust-badge">
+                        <i class="fas fa-shield-check"></i>
+                        <div>
+                            <div class="text-white fw-bold small">100% Hàng chính hãng</div>
+                            <small class="text-secondary">Bảo hành 12 tháng, 1 đổi 1 trong 30 ngày</small>
+                        </div>
+                    </div>
+                    <div class="small mt-3">
+                        <div><i class="fas fa-phone me-2 text-primary"></i> Hotline: <strong class="text-white">0912 256 789</strong></div>
+                        <div class="mt-1"><i class="fas fa-envelope me-2 text-primary"></i> Email: <strong class="text-white">support@anhoang.vn</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom text-center">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div>© 2026 Bản quyền thuộc về <strong>An Hoang E-Commerce</strong>. Tất cả quyền được bảo lưu.</div>
+                    <div class="d-flex gap-3 text-secondary">
+                        <span><i class="fab fa-cc-visa fs-5"></i></span>
+                        <span><i class="fab fa-cc-mastercard fs-5"></i></span>
+                        <span><i class="fas fa-qrcode fs-5"></i> VNPAY / MoMo</span>
+                    </div>
                 </div>
             </div>
         </div>
-    
-        <div class="text-center p-3 bg-primary text-white">
-            © 2025 Bản quyền thuộc về Ân Hoàng 🤭
-        </div>
     </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Global Toast & Utility Script -->
+    <script>
+        function showAppToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            let iconClass = 'fas fa-check';
+            let typeClass = 'toast-success';
+
+            if (type === 'error' || type === 'danger') {
+                iconClass = 'fas fa-triangle-exclamation';
+                typeClass = 'toast-error';
+            } else if (type === 'info' || type === 'warning') {
+                iconClass = 'fas fa-info';
+                typeClass = 'toast-info';
+            }
+
+            toast.className = `custom-toast ${typeClass}`;
+            toast.innerHTML = `
+                <div class="custom-toast-icon">
+                    <i class="${iconClass}"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold text-dark" style="font-size: 0.9rem;">${message}</div>
+                </div>
+                <button type="button" class="btn-close btn-close-sm" style="font-size: 0.75rem;" onclick="this.parentElement.remove()"></button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Cập nhật số lượng giỏ hàng trên navbar
+        function updateGlobalCartBadge(count) {
+            const badge = document.getElementById('cartCountBadge');
+            if (badge) {
+                badge.textContent = count;
+                if (count > 0) {
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

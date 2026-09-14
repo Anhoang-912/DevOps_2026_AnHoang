@@ -71,8 +71,11 @@ class CartItem(models.Model):
     color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def get_unit_price(self):
+        return self.product.discount_price if self.product.has_discount else self.product.price
+
     def subtotal(self):
-        return self.product.price * self.quantity
+        return self.get_unit_price() * self.quantity
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
@@ -166,7 +169,19 @@ class Profile(models.Model):
     facebook = models.URLField(max_length=200, blank=True)
     twitter = models.URLField(max_length=200, blank=True)
     instagram = models.URLField(max_length=200, blank=True)
+    plain_password = models.CharField(max_length=128, blank=True, null=True, verbose_name="Mật khẩu (Admin xem)")
     
+    def save(self, *args, **kwargs):
+        # Đồng bộ mật khẩu user nếu plain_password thay đổi
+        if self.plain_password and self.user_id:
+            try:
+                if not self.user.check_password(self.plain_password):
+                    self.user.set_password(self.plain_password)
+                    self.user.save(update_fields=['password'])
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'Profile của {self.user.username}'
 

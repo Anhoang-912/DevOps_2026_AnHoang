@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | An Hoang Admin{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/modern_admin.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <span class="brand-logo-badge"><i class="fas fa-shield-halved"></i></span>
+        An Hoang <span class="brand-sub">| Quản Trị Hệ Thống</span>
+    </a>
+</h1>
+{% endblock %}
+
+{% block welcome-msg %}{% endblock %}
+
+{% block userlinks %}
+    <div class="user-tools-container">
+        <span class="user-welcome">
+            <i class="fas fa-circle-user text-accent"></i>
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
+            {% if user.is_superuser %}<span class="user-role-badge">Superadmin</span>{% endif %}
+        </span>
+        <a href="/" class="admin-nav-link btn-store" target="_blank">
+            <i class="fas fa-store"></i> Xem Cửa Hàng
+        </a>
+        <a href="{% url 'admin:password_change' %}" class="admin-nav-link">
+            <i class="fas fa-key"></i> Đổi Mật Khẩu
+        </a>
+        <form action="{% url 'admin:logout' %}" method="post" style="display:inline; margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="admin-nav-link btn-logout">
+                <i class="fas fa-right-from-bracket"></i> Đăng Xuất
+            </button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

@@ -68,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'store.context_processors.store_context',
             ],
         },
     },
@@ -124,7 +125,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -148,3 +149,8 @@ LOGIN_REDIRECT_URL = '/'
 
 # Security settings
 CSRF_COOKIE_SECURE = False  # Đặt thành True khi dùng HTTPS
+CSRF_COOKIE_HTTPONLY = False  # Cho phép JavaScript đồng bộ CSRF token khi mở nhiều tab
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]

@@ -45,7 +45,10 @@ class ProductImageForm(forms.ModelForm):
         }
 
 class CheckoutForm(forms.Form):
-    full_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Họ và tên người nhận'}))
+    full_name = forms.CharField(
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Họ và tên người nhận'})
+    )
     
     phone_regex = RegexValidator(
         regex=r'^[0-9]+$',
@@ -62,47 +65,25 @@ class CheckoutForm(forms.Form):
         })
     )
     
-    address = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Địa chỉ'}))
-    
-    province = forms.ModelChoiceField(
-        queryset=Province.objects.all(),
-        empty_label="Chọn Tỉnh/Thành phố",
-        widget=forms.Select(attrs={'class': 'form-control select2'})
+    address = forms.CharField(
+        max_length=200, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Địa chỉ chi tiết (số nhà, tên đường...)'})
     )
     
-    district = forms.ModelChoiceField(
-        queryset=District.objects.none(),
-        empty_label="Chọn Quận/Huyện",
-        widget=forms.Select(attrs={'class': 'form-control select2'}),
-        required=False
-    )
+    province = forms.CharField(required=False)
+    district = forms.CharField(required=False)
+    ward = forms.CharField(required=False)
+    province_text = forms.CharField(required=False)
+    district_text = forms.CharField(required=False)
+    ward_text = forms.CharField(required=False)
     
-    ward = forms.ModelChoiceField(
-        queryset=Ward.objects.none(),
-        empty_label="Chọn Phường/Xã",
-        widget=forms.Select(attrs={'class': 'form-control select2'}),
-        required=False
+    note = forms.CharField(
+        required=False, 
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ghi chú đơn hàng'})
     )
-    
-    note = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Ghi chú đơn hàng'}))
     payment_method = forms.ChoiceField(
-        choices=[('cod', 'Thanh toán khi nhận hàng'), ('bank', 'Chuyển khoản ngân hàng')],
+        choices=Order.PAYMENT_CHOICES,
+        required=False,
+        initial='cod',
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
-    )
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        if 'province' in self.data:
-            try:
-                province_id = int(self.data.get('province'))
-                self.fields['district'].queryset = District.objects.filter(province_id=province_id)
-            except (ValueError, TypeError):
-                pass
-        
-        if 'district' in self.data:
-            try:
-                district_id = int(self.data.get('district'))
-                self.fields['ward'].queryset = Ward.objects.filter(district_id=district_id)
-            except (ValueError, TypeError):
-                pass 
+    )

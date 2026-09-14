@@ -1,769 +1,592 @@
 {% extends 'base.html' %}
-{% load static %}
-{% load humanize %}
+{% load static humanize %}
+
+{% block title %}Danh sách sản phẩm | An Hoang Store{% endblock %}
 
 {% block extra_css %}
 <style>
-/* Card sản phẩm */
-.product-card {
-    border: none;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-    position: relative;
+/* Sidebar Filter Card */
+.filter-card {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
 }
 
-.product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-}
-
-.product-image-container {
-    height: 280px;
-    overflow: hidden;
-    background: #f8f9fa;
+.filter-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-light);
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 25px;
-    position: relative;
+    gap: 8px;
 }
 
-.product-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    transition: transform 0.5s ease;
-}
-
-.product-card:hover .product-image {
-    transform: scale(1.08);
-}
-
-.product-card-body {
-    padding: 25px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    background: #fff;
-}
-
-.product-title {
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #2c3e50;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-clamp: 2;
-    -moz-line-clamp: 2;
-    -ms-line-clamp: 2;
-    overflow: hidden;
-    line-height: 1.4;
-    max-height: 2.8em;
-}
-
-.product-category {
-    display: inline-block;
-    background: #f0f2f5;
-    padding: 5px 15px;
-    border-radius: 20px;
-    color: #6c757d;
-    font-size: 0.85rem;
-    margin-bottom: 12px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.product-card:hover .product-category {
-    background: #e9ecef;
-}
-
-.product-price-container {
-    margin: 12px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.original-price {
-    text-decoration: line-through;
-    color: #6c757d;
-    font-size: 0.9rem;
-    position: relative;
-    display: inline-block;
-}
-
-.product-price {
-    color: #e74c3c;
-    font-weight: 700;
-    font-size: 1.2rem;
-    display: inline-block;
-}
-
-/* Badge giảm giá */
-.discount-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: linear-gradient(45deg, #e74c3c, #c0392b);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 25px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    z-index: 2;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-    animation: pulse 2s infinite;
-}
-
-/* Animation cho badge giảm giá */
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-    }
-    50% {
-        transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-    }
-}
-
-/* Container cho giá và đơn vị tiền */
-.price-container {
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-}
-
-.currency {
-    font-size: 0.85em;
-    color: inherit;
-    font-weight: inherit;
-}
-
-.product-actions {
-    margin-top: auto;
+.filter-category-link {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 6px; /* nhỏ hơn để gọn hơn */
-}
-
-.btn-detail, .btn-cart {
     padding: 8px 12px;
-    font-size: 0.85rem;
     border-radius: 8px;
-    font-weight: 500;
-    flex: 1;
-    text-align: center;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.btn-detail {
-    background: #f8f9fa;
-    color: #2c3e50;
-    border: none;
-}
-
-.btn-detail:hover {
-    background: #e9ecef;
-    color: #2c3e50;
-    transform: translateY(-2px);
-}
-
-.btn-cart {
-    background: #3498db;
-    color: white;
-    border: none;
-}
-
-.btn-cart:hover {
-    background: #2980b9;
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* Search và filter */
-.search-container {
-    background: white;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    margin-bottom: 30px;
-}
-
-.category-filter {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    padding: 25px;
-}
-
-.category-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.category-item {
-    padding: 12px 20px;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.category-item:hover, .category-item.active {
-    background: #f0f2f5;
-}
-
-.category-item a {
-    color: #2c3e50;
+    color: #334155;
     text-decoration: none;
-    display: block;
+    font-size: 0.92rem;
     font-weight: 500;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
 }
 
-.category-item.active a {
-    color: #3498db;
+.filter-category-link:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.filter-category-link.active {
+    background: var(--primary);
+    color: #ffffff;
     font-weight: 600;
 }
 
-/* Phân trang */
-.pagination {
-    margin-top: 40px;
+.filter-category-link.active .badge-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
 }
 
-.page-link {
-    padding: 8px 16px;
-    margin: 0 5px;
-    border-radius: 8px;
-    border: none;
-    color: #2c3e50;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.page-link:hover {
-    background: #f0f2f5;
-    color: #3498db;
-}
-
-.page-item.active .page-link {
-    background: #3498db;
-    color: white;
-}
-
-/* Alert khi không có sản phẩm */
-.alert-info {
-    background: #f0f2f5;
-    border: none;
+.badge-count {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.75rem;
+    padding: 2px 8px;
     border-radius: 12px;
-    padding: 20px;
-    color: #2c3e50;
-    font-weight: 500;
+    font-weight: 600;
 }
 
-/* Hiệu ứng thêm vào giỏ hàng */
-.add-to-cart-bubble {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #e74c3c;
-    color: white;
+/* Price Radio filter */
+.price-filter-item {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.price-filter-item label {
+    cursor: pointer;
+    color: #475569;
+}
+
+/* Top Toolbar */
+.products-toolbar {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 24px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    font-size: 18px;
-    pointer-events: none;
-    opacity: 0.95;
-    z-index: 9999;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    animation: bubblePulse 2s infinite alternate;
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
 }
 
-@keyframes bubblePulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-    100% {
-        transform: scale(1.1);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    }
-}
-
-/* Hiệu ứng thông báo thành công */
-.cart-success-toast {
-    position: fixed;
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #28a745;
-    color: white;
-    padding: 6px 15px;
-    border-radius: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    z-index: 1050;
-    max-width: 180px;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    animation: popupFade 2s ease forwards;
-}
-
-.cart-success-toast i {
-    font-size: 12px;
-    background-color: rgba(255, 255, 255, 0.3);
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-@keyframes popupFade {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, 10px);
-    }
-    15% {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-    85% {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -10px);
-    }
-}
-
-/* Hiệu ứng rung lắc giỏ hàng */
-@keyframes cartShake {
-    0% { transform: rotate(0); }
-    25% { transform: rotate(10deg); }
-    50% { transform: rotate(-10deg); }
-    75% { transform: rotate(5deg); }
-    100% { transform: rotate(0); }
-}
-
-.cart-shake {
-    animation: cartShake 0.5s ease;
-}
-
-/* Hiển thị đánh giá sao */
-.product-rating {
+/* Modern Product Card */
+.product-grid-card {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.product-grid-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+    border-color: #cbd5e1;
+}
+
+.product-card-img-wrap {
+    height: 220px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card-img-wrap img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+}
+
+.product-grid-card:hover .product-card-img-wrap img {
+    transform: scale(1.08);
+}
+
+.badge-discount-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 6px;
+    z-index: 2;
+    box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
+}
+
+.product-card-body {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.product-cat-pill {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: inline-block;
+}
+
+.product-name-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 8px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.8em;
+    text-decoration: none;
+}
+
+.product-name-title:hover {
+    color: var(--primary);
+}
+
+.product-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #f59e0b;
     margin-bottom: 10px;
 }
 
-.stars-container {
+.product-price-row {
+    margin-top: auto;
+    margin-bottom: 14px;
+}
+
+.price-current {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.price-old {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    text-decoration: line-through;
+    margin-left: 6px;
+}
+
+.product-actions-group {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-add-cart-ajax {
+    flex: 1;
+    background: var(--primary-light);
+    color: var(--primary);
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 2px;
+    justify-content: center;
+    gap: 6px;
 }
 
-.stars-container i.fas.fa-star,
-.stars-container i.fas.fa-star-half-alt {
-    color: #ffc107;
-    font-size: 0.9rem;
+.btn-add-cart-ajax:hover {
+    background: var(--primary);
+    color: white;
 }
 
-.stars-container i.far.fa-star {
-    color: #e0e0e0;
-    font-size: 0.9rem;
+.btn-view-detail {
+    background: #f1f5f9;
+    color: #334155;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.88rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 
-.rating-value {
-    margin-left: 4px;
+.btn-view-detail:hover {
+    background: #e2e8f0;
+    color: var(--dark);
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 36px;
+    gap: 6px;
+}
+
+.page-link {
+    border-radius: 8px !important;
+    border: 1px solid var(--card-border);
+    color: #334155;
     font-weight: 600;
-    color: #ffc107;
-    font-size: 0.9rem;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
 }
 
-.rating-count {
-    color: #6c757d;
-    font-size: 0.8rem;
-    margin-top: 2px;
+.page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
 }
 
-@media (max-width: 768px) {
-    .product-rating {
-        margin-bottom: 5px;
-    }
-    
-    .stars-container i {
-        font-size: 0.8rem;
-    }
+.page-link:hover:not(.active) {
+    background-color: var(--primary-light);
+    color: var(--primary);
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="category-filter">
-                <h5 class="mb-3">Danh mục sản phẩm</h5>
-                <ul class="category-list">
-                    <li class="category-item {% if not selected_category %}active{% endif %}">
-                        <a href="{% url 'product_list' %}">Tất cả sản phẩm</a>
-                    </li>
-                    {% for category in categories %}
-                    <li class="category-item {% if selected_category == category.id %}active{% endif %}">
-                        <a href="{% url 'product_list' %}?category={{ category.id }}">{{ category.name }}</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+<div class="container py-4">
 
-        <div class="col-md-9">
-            <div class="search-container">
-                <form action="{% url 'search_products' %}" method="get" class="d-flex">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control" 
-                               placeholder="Tìm kiếm sản phẩm..." value="{{ query }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-search"></i> Tìm kiếm
-                            </button>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Danh sách sản phẩm</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- 1. Bộ Lọc Sidebar (Left) -->
+        <div class="col-lg-3">
+            <!-- Form Lọc Chính -->
+            <form id="filterForm" method="get" action="{% url 'product_list' %}">
+                <!-- Giữ lại từ khóa tìm kiếm nếu có -->
+                {% if query %}
+                <input type="hidden" name="q" value="{{ query }}">
+                {% endif %}
+                
+                <!-- Giữ lại sắp xếp hiện tại -->
+                <input type="hidden" name="sort" id="hiddenSortInput" value="{{ current_sort }}">
+
+                <!-- Card 1: Danh mục sản phẩm -->
+                <div class="filter-card">
+                    <div class="filter-title">
+                        <i class="fas fa-list text-primary"></i> Danh Mục
+                    </div>
+                    <div>
+                        <a href="?{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_price_range %}&price_range={{ current_price_range }}{% endif %}{% if on_sale %}&on_sale=1{% endif %}{% if query %}&q={{ query }}{% endif %}" 
+                           class="filter-category-link {% if not selected_category %}active{% endif %}">
+                            <span>Tất cả sản phẩm</span>
+                            <span class="badge-count">{{ total_products }}</span>
+                        </a>
+                        {% for cat in categories %}
+                        <a href="?category={{ cat.id }}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_price_range %}&price_range={{ current_price_range }}{% endif %}{% if on_sale %}&on_sale=1{% endif %}{% if query %}&q={{ query }}{% endif %}" 
+                           class="filter-category-link {% if selected_category == cat.id %}active{% endif %}">
+                            <span>{{ cat.name }}</span>
+                            <span class="badge-count">{{ cat.prod_count }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% if selected_category %}
+                    <input type="hidden" name="category" value="{{ selected_category }}">
+                    {% endif %}
+                </div>
+
+                <!-- Card 2: Lọc theo Mức Giá -->
+                <div class="filter-card">
+                    <div class="filter-title">
+                        <i class="fas fa-tag text-primary"></i> Khoảng Giá
+                    </div>
+                    <div class="price-filter-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_range" id="price_all" value="" {% if not current_price_range %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="form-check-label" for="price_all">Tất cả mức giá</label>
                         </div>
                     </div>
-                </form>
+                    <div class="price-filter-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_range" id="price_under_5m" value="under_5m" {% if current_price_range == 'under_5m' %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="form-check-label" for="price_under_5m">Dưới 5 triệu</label>
+                        </div>
+                    </div>
+                    <div class="price-filter-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_range" id="price_5m_15m" value="5m_15m" {% if current_price_range == '5m_15m' %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="form-check-label" for="price_5m_15m">Từ 5 - 15 triệu</label>
+                        </div>
+                    </div>
+                    <div class="price-filter-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_range" id="price_15m_30m" value="15m_30m" {% if current_price_range == '15m_30m' %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="form-check-label" for="price_15m_30m">Từ 15 - 30 triệu</label>
+                        </div>
+                    </div>
+                    <div class="price-filter-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="price_range" id="price_over_30m" value="over_30m" {% if current_price_range == 'over_30m' %}checked{% endif %} onchange="this.form.submit()">
+                            <label class="form-check-label" for="price_over_30m">Trên 30 triệu</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Khuyến Mãi & Ưu Đãi -->
+                <div class="filter-card">
+                    <div class="filter-title">
+                        <i class="fas fa-percent text-danger"></i> Ưu Đãi
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="on_sale" value="1" id="onSaleSwitch" {% if on_sale %}checked{% endif %} onchange="this.form.submit()">
+                        <label class="form-check-label fw-semibold" for="onSaleSwitch">Chỉ sản phẩm đang giảm giá</label>
+                    </div>
+
+                    {% if selected_category or current_price_range or on_sale or query %}
+                    <div class="mt-4 pt-3 border-top">
+                        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-sm w-100 rounded-pill">
+                            <i class="fas fa-trash-can me-1"></i> Xóa tất cả bộ lọc
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <!-- 2. Danh Sách Sản Phẩm (Right) -->
+        <div class="col-lg-9">
+            <!-- Top Toolbar -->
+            <div class="products-toolbar">
+                <div>
+                    {% if query %}
+                    <h5 class="fw-bold mb-0">Kết quả tìm kiếm cho: "<span class="text-primary">{{ query }}</span>"</h5>
+                    <small class="text-muted">Tìm thấy {{ total_products }} sản phẩm</small>
+                    {% else %}
+                    <h5 class="fw-bold mb-0">Tất cả sản phẩm</h5>
+                    <small class="text-muted">Hiển thị {{ page_obj|length }} trên {{ total_products }} sản phẩm</small>
+                    {% endif %}
+                </div>
+
+                <!-- Sort Dropdown -->
+                <div class="d-flex align-items-center gap-2">
+                    <label class="small fw-semibold text-muted text-nowrap">Sắp xếp theo:</label>
+                    <select class="form-select form-select-sm" id="sortSelect" style="min-width: 170px; border-radius: 8px;">
+                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                        <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Giá: Thấp đến Cao</option>
+                        <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Giá: Cao đến Thấp</option>
+                        <option value="discount" {% if current_sort == 'discount' %}selected{% endif %}>Khuyến mãi nhiều nhất</option>
+                        <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Tên: A - Z</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="row">
+            <!-- Product Grid -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
                 {% for product in page_obj %}
-                <div class="col-md-4 mb-4">
-                    <div class="product-card">
-                        {% if product.discount_percent > 0 %}
-                        <div class="discount-badge">-{{ product.discount_percent }}%</div>
-                        {% endif %}
-                        <div class="product-image-container">
-                            {% if product.image %}
-                            <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
-                            {% else %}
-                            <img src="{% static 'images/no-image.png' %}" class="product-image" alt="No image">
+                <div class="col">
+                    <div class="product-grid-card">
+                        <div class="product-card-img-wrap">
+                            {% if product.has_discount %}
+                            <span class="badge-discount-tag">-{{ product.discount_percent }}%</span>
                             {% endif %}
+                            <a href="{% url 'product_detail' product.id %}" class="d-flex align-items-center justify-content-center h-100 w-100">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <img src="{% static 'images/no-image.png' %}" alt="{{ product.name }}">
+                                {% endif %}
+                            </a>
                         </div>
                         <div class="product-card-body">
-                            <span class="product-category">
-                                <i class="fas fa-tag mr-1"></i> {{ product.category.name }}
-                            </span>
-                            <h5 class="product-title">{{ product.name }}</h5>
-                            
-                            <!-- Thêm đánh giá sao -->
-                            <div class="product-rating">
-                                <div class="stars-container">
-                                    {% with ''|center:5 as range %}
-                                        {% for _ in range %}
-                                            {% if forloop.counter <= product.rating_avg|default:0|floatformat:0|add:"0" %}
-                                                <i class="fas fa-star"></i>
-                                            {% elif forloop.counter|add:"-0.5" <= product.rating_avg|default:0 %}
-                                                <i class="fas fa-star-half-alt"></i>
-                                            {% else %}
-                                                <i class="far fa-star"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endwith %}
-                                    <span class="rating-value">{{ product.rating_avg|default:0|floatformat:1 }}</span>
-                                </div>
-                                <span class="rating-count">({{ product.rating_count|default:0 }} đánh giá)</span>
+                            <span class="product-cat-pill">{{ product.category.name }}</span>
+                            <a href="{% url 'product_detail' product.id %}" class="product-name-title" title="{{ product.name }}">
+                                {{ product.name }}
+                            </a>
+
+                            <!-- Đánh giá sao -->
+                            <div class="product-rating-row">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= product.rating_avg %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-secondary opacity-50"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-1 text-muted">({{ product.rating_count }})</span>
                             </div>
-                            <div class="product-price-container">
+
+                            <!-- Giá tiền -->
+                            <div class="product-price-row">
                                 {% if product.has_discount %}
-                                    <div class="price-container">
-                                        <span class="original-price">{{ product.price|intcomma }}<span class="currency">₫</span></span>
-                                    </div>
-                                    <div class="price-container">
-                                        <span class="product-price">{{ product.discount_price|intcomma }}<span class="currency">₫</span></span>
-                                    </div>
+                                    <span class="price-current">{{ product.discount_price|intcomma }} ₫</span>
+                                    <span class="price-old">{{ product.price|intcomma }} ₫</span>
                                 {% else %}
-                                    <div class="price-container">
-                                        <span class="product-price">{{ product.price|intcomma }}<span class="currency">₫</span></span>
-                                    </div>
+                                    <span class="price-current">{{ product.price|intcomma }} ₫</span>
                                 {% endif %}
                             </div>
-                            <div class="product-actions">
-                                <a href="{% url 'product_detail' product.id %}" class="btn btn-detail">
-                                    <i class="fas fa-eye mr-1"></i> Xem chi tiết
+
+                            <!-- Thao tác thêm vào giỏ / xem chi tiết -->
+                            <div class="product-actions-group">
+                                <button type="button" class="btn-add-cart-ajax ajax-add-btn" data-product-id="{{ product.id }}" title="Thêm vào giỏ">
+                                    <i class="fas fa-cart-plus"></i>
+                                    <span>Thêm giỏ</span>
+                                </button>
+                                <a href="{% url 'product_detail' product.id %}" class="btn-view-detail" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
                                 </a>
-                                {% if user.is_authenticated %}
-                                <form class="add-to-cart-form" action="{% url 'add_to_cart' product.id %}" method="post" style="flex: 1;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-cart w-100 add-to-cart-btn" data-product-id="{{ product.id }}">
-                                        <i class="fas fa-cart-plus mr-1"></i> Thêm vào giỏ
-                                    </button>
-                                </form>
-                                {% else %}
-                                <a href="{% url 'login' %}" class="btn btn-cart">
-                                    <i class="fas fa-sign-in-alt mr-1"></i> Đăng nhập
-                                </a>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
                 {% empty %}
-                <div class="col-12">
-                    <div class="alert alert-info text-center">
-                        <i class="fas fa-info-circle mr-2"></i> Không tìm thấy sản phẩm nào.
+                <div class="col-12 py-5 text-center">
+                    <div style="font-size: 3.5rem; color: #94a3b8; margin-bottom: 16px;">
+                        <i class="fas fa-box-open"></i>
                     </div>
+                    <h5 class="fw-bold text-dark">Không tìm thấy sản phẩm phù hợp</h5>
+                    <p class="text-muted small">Hãy thử thay đổi điều kiện lọc giá hoặc xóa bớt tiêu chí tìm kiếm.</p>
+                    <a href="{% url 'product_list' %}" class="btn btn-primary rounded-pill px-4 mt-2">
+                        <i class="fas fa-rotate-left me-1"></i> Xem tất cả sản phẩm
+                    </a>
                 </div>
                 {% endfor %}
             </div>
 
-            {% if page_obj.paginator.num_pages > 1 %}
-            <nav aria-label="Page navigation" class="mt-4">
+            <!-- 3. Phân trang (Pagination) -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Product pagination">
                 <ul class="pagination justify-content-center">
                     {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="First">
-                            <span aria-hidden="true">&laquo;&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_price_range %}&price_range={{ current_price_range }}{% endif %}{% if on_sale %}&on_sale=1{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
                     {% endif %}
 
                     {% for num in page_obj.paginator.page_range %}
-                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ num }}</a>
-                    </li>
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_price_range %}&price_range={{ current_price_range }}{% endif %}{% if on_sale %}&on_sale=1{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
                     {% endfor %}
 
                     {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" aria-label="Last">
-                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_price_range %}&price_range={{ current_price_range }}{% endif %}{% if on_sale %}&on_sale=1{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>
                     {% endif %}
                 </ul>
             </nav>
             {% endif %}
+
         </div>
     </div>
-</div>
 
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Xử lý thêm vào giỏ hàng với AJAX
-    const addToCartForms = document.querySelectorAll('.add-to-cart-form');
-    
-    addToCartForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+    // 1. Sắp xếp thay đổi
+    const sortSelect = document.getElementById('sortSelect');
+    const hiddenSortInput = document.getElementById('hiddenSortInput');
+    const filterForm = document.getElementById('filterForm');
+
+    if (sortSelect && hiddenSortInput && filterForm) {
+        sortSelect.addEventListener('change', function() {
+            hiddenSortInput.value = this.value;
+            filterForm.submit();
+        });
+    }
+
+    // 2. Thêm vào giỏ hàng AJAX
+    const ajaxAddBtns = document.querySelectorAll('.ajax-add-btn');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    ajaxAddBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            // Lấy vị trí nút thêm vào giỏ hàng
-            const addToCartBtn = form.querySelector('.add-to-cart-btn');
-            const btnRect = addToCartBtn.getBoundingClientRect();
-            const btnX = btnRect.left + btnRect.width / 2;
-            const btnY = btnRect.top + btnRect.height / 2;
-            
-            // Gửi request AJAX
-            const formData = new FormData(this);
-            
-            fetch(this.action, {
+            const productId = this.getAttribute('data-product-id');
+            const originalHtml = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.disabled = true;
+
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            formData.append('quantity', 1);
+
+            fetch(`/add-to-cart/${productId}/`, {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
+            .then(res => {
+                if (res.redirected) {
+                    window.location.href = res.url;
+                    return;
+                }
+                return res.json();
+            })
             .then(data => {
-                if (data.status === 'success') {
-                    // Hiển thị thông báo thành công
-                    showSuccessToast(data.message);
-                    
-                    // Cập nhật số lượng sản phẩm trong giỏ hàng
-                    updateCartCount(data.cart_items_count);
-                    
-                    // Tạo hiệu ứng bong bóng nổi
-                    createFlyingBubble(btnX, btnY);
+                if (data && data.status === 'success') {
+                    showAppToast(data.message, 'success');
+                    updateGlobalCartBadge(data.cart_items_count);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
+            .catch(err => {
+                console.error(err);
+                showAppToast('Không thể thêm vào giỏ hàng. Vui lòng đăng nhập!', 'error');
+            })
+            .finally(() => {
+                this.innerHTML = originalHtml;
+                this.disabled = false;
             });
         });
     });
-
-    // Hiển thị thông báo thành công
-    function showSuccessToast(message) {
-        // Xóa thông báo cũ nếu có
-        const oldToast = document.querySelector('.cart-success-toast');
-        if (oldToast) {
-            oldToast.remove();
-        }
-        
-        // Tạo thông báo mới
-        const toast = document.createElement('div');
-        toast.className = 'cart-success-toast';
-        
-        // Thêm biểu tượng kiểm
-        const icon = document.createElement('i');
-        icon.className = 'fas fa-check';
-        toast.appendChild(icon);
-        
-        // Thêm văn bản
-        const textNode = document.createTextNode('Đã thêm vào giỏ');
-        toast.appendChild(textNode);
-        
-        // Thêm vào body
-        document.body.appendChild(toast);
-        
-        // Tự động xóa sau 2 giây
-        setTimeout(() => {
-            toast.remove();
-        }, 2000);
-    }
-
-    // Cập nhật số lượng sản phẩm trong giỏ hàng
-    function updateCartCount(count) {
-        const cartCountElement = document.querySelector('.cart-count');
-        
-        if (cartCountElement) {
-            cartCountElement.textContent = count;
-        } else {
-            // Nếu chưa có element hiển thị số lượng, tạo mới
-            const cartIcon = document.querySelector('.cart-icon');
-            if (cartIcon) {
-                const newCountElement = document.createElement('span');
-                newCountElement.className = 'cart-count';
-                newCountElement.textContent = count;
-                cartIcon.appendChild(newCountElement);
-            }
-        }
-        
-        // Thêm hiệu ứng rung lắc icon giỏ hàng
-        const cartIcon = document.querySelector('.cart-icon');
-        if (cartIcon) {
-            cartIcon.classList.add('cart-shake');
-            
-            // Xóa class sau khi animation kết thúc
-            setTimeout(() => {
-                cartIcon.classList.remove('cart-shake');
-            }, 500);
-        }
-    }
-
-    // Tạo hiệu ứng bong bóng nổi
-    function createFlyingBubble(startX, startY) {
-        // Tìm vị trí icon giỏ hàng
-        const cartIcon = document.querySelector('.cart-icon');
-        if (!cartIcon) return;
-        
-        // Lấy vị trí trong cửa sổ hiện tại (tính toán cuộn trang)
-        const cartRect = cartIcon.getBoundingClientRect();
-        const endX = cartRect.left + cartRect.width / 2;
-        const endY = cartRect.top + cartRect.height / 2;
-        
-        // Tạo element bong bóng
-        const bubble = document.createElement('div');
-        bubble.className = 'add-to-cart-bubble';
-        bubble.innerHTML = '<i class="fas fa-cart-plus"></i>';
-        
-        // Đặt vị trí ban đầu dựa trên vị trí cửa sổ hiện tại
-        bubble.style.left = `${startX}px`;
-        bubble.style.top = `${startY}px`;
-        
-        // Thêm bong bóng vào body
-        document.body.appendChild(bubble);
-        
-        // Tính toán đường đi cong
-        const controlX = (startX + endX) / 2 - 150;
-        const controlY = Math.min(startY, endY) - 200;
-        
-        // Thời gian di chuyển
-        const duration = 2500;
-        const startTime = performance.now();
-        
-        // Hàm animation
-        function animate(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // Kiểm tra vị trí mới của giỏ hàng (nếu người dùng cuộn trang)
-            const updatedCartRect = cartIcon.getBoundingClientRect();
-            const updatedEndX = updatedCartRect.left + updatedCartRect.width / 2;
-            const updatedEndY = updatedCartRect.top + updatedCartRect.height / 2;
-            
-            if (progress < 1) {
-                // Tính toán vị trí trên đường cong Bézier
-                const t = progress;
-                const u = 1 - t;
-                const tt = t * t;
-                const uu = u * u;
-                const uuu = uu * u;
-                const ttt = tt * t;
-                
-                // Sử dụng vị trí giỏ hàng đã cập nhật
-                const x = uuu * startX + 3 * uu * t * controlX + 3 * u * tt * updatedEndX + ttt * updatedEndX;
-                const y = uuu * startY + 3 * uu * t * controlY + 3 * u * tt * updatedEndY + ttt * updatedEndY;
-                
-                bubble.style.left = `${x}px`;
-                bubble.style.top = `${y}px`;
-                
-                // Hiệu ứng cho bong bóng khi di chuyển
-                if (progress > 0.8) {
-                    const scale = 1 + (progress - 0.8) * 5; // Phóng to
-                    const opacity = 1 - (progress - 0.8) * 5; // Mờ dần
-                    bubble.style.transform = `scale(${scale})`;
-                    bubble.style.opacity = opacity;
-                }
-                
-                requestAnimationFrame(animate);
-            } else {
-                // Xóa bong bóng sau khi hoàn thành
-                bubble.remove();
-                
-                // Thêm hiệu ứng khi bong bóng đến giỏ hàng
-                cartIcon.classList.add('cart-shake');
-                
-                // Xóa hiệu ứng sau khi kết thúc
-                setTimeout(() => {
-                    cartIcon.classList.remove('cart-shake');
-                }, 500);
-            }
-        }
-        
-        requestAnimationFrame(animate);
-    }
 });
 </script>
 {% endblock %}
