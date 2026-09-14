@@ -1,0 +1,80 @@
+﻿{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static "admin/css/login.css" %}">
+{{ form.media }}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="login-card-header">
+    <div class="login-avatar-icon">
+        <i class="fas fa-shield-halved"></i>
+    </div>
+    <h2 class="login-card-title">Đăng Nhập Quản Trị</h2>
+    <p class="login-card-subtitle">Vui lòng nhập tài khoản quản trị để tiếp tục</p>
+</div>
+
+{% if form.errors and not form.non_field_errors %}
+<p class="errornote">
+    <i class="fas fa-circle-exclamation me-1"></i> Tên đăng nhập hoặc mật khẩu không chính xác.
+</p>
+{% endif %}
+
+{% if form.non_field_errors %}
+{% for error in form.non_field_errors %}
+<p class="errornote">
+    <i class="fas fa-circle-exclamation me-1"></i> {{ error }}
+</p>
+{% endfor %}
+{% endif %}
+
+<div id="content-main">
+{% if user.is_authenticated %}
+<p class="errornote">
+    Tài khoản <strong>{{ username }}</strong> không có quyền truy cập trang quản trị.
+</p>
+{% endif %}
+
+<form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+  <div class="form-row">
+    <label for="id_username"><i class="fas fa-user me-1 text-muted"></i> Tên đăng nhập:</label>
+    {{ form.username }}
+    {{ form.username.errors }}
+  </div>
+  <div class="form-row">
+    <label for="id_password"><i class="fas fa-key me-1 text-muted"></i> Mật khẩu:</label>
+    {{ form.password }}
+    {{ form.password.errors }}
+    <input type="hidden" name="next" value="{{ next }}">
+  </div>
+  
+  {% url 'admin_password_reset' as password_reset_url %}
+  {% if password_reset_url %}
+  <div class="password-reset-link">
+    <a href="{{ password_reset_url }}">Quên mật khẩu?</a>
+  </div>
+  {% endif %}
+  
+  <div class="submit-row">
+    <button type="submit" class="btn-admin-login">
+        <i class="fas fa-right-to-bracket me-2"></i> Đăng Nhập Hệ Thống
+    </button>
+  </div>
+  
+  <div class="back-to-store">
+      <a href="/"><i class="fas fa-arrow-left me-1"></i> Quay lại cửa hàng</a>
+  </div>
+</form>
+
+</div>
+{% endblock %}
