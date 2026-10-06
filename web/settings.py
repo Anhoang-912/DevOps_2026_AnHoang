@@ -11,6 +11,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import django.db.models
+
+# Polyfill for django-libsql-backend compatibility with Django 5.1
+if not hasattr(django.db.models, 'CompositePrimaryKey'):
+    class CompositePrimaryKey:
+        pass
+    django.db.models.CompositePrimaryKey = CompositePrimaryKey
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
