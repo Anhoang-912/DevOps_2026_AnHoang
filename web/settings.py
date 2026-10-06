@@ -77,15 +77,29 @@ TEMPLATES = [
 WSGI_APPLICATION = 'web.wsgi.application'
 
 
+from decouple import config
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+TURSO_DB_URL = config('TURSO_DB_URL', default='')
+TURSO_AUTH_TOKEN = config('TURSO_AUTH_TOKEN', default='')
+
+if TURSO_DB_URL and TURSO_AUTH_TOKEN:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_libsql',
+            'NAME': TURSO_DB_URL,
+            'AUTH_TOKEN': TURSO_AUTH_TOKEN,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
