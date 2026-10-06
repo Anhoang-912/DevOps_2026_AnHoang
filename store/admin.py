@@ -60,8 +60,8 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = [
-        'image_preview', 'name', 'category', 'price', 
-        'discount_percent', 'discount_price_display', 'rating_display'
+        'id', 'image_preview', 'name', 'category', 'price', 
+        'discount_percent', 'discount_price_display', 'rating_display', 'actions_column'
     ]
     list_editable = ['price', 'discount_percent', 'category']
     list_filter = ['category', 'discount_percent']
@@ -69,7 +69,14 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImageInline]
     filter_horizontal = ('colors',)
     list_per_page = 20
-    actions = ['apply_10_percent_discount', 'apply_20_percent_discount', 'clear_discount']
+    actions = [
+        'duplicate_products', 
+        'apply_10_percent_discount', 
+        'apply_20_percent_discount', 
+        'apply_30_percent_discount', 
+        'apply_50_percent_discount', 
+        'clear_discount'
+    ]
 
     fieldsets = (
         ('1. Thông tin cơ bản', {
@@ -101,7 +108,34 @@ class ProductAdmin(admin.ModelAdmin):
         return mark_safe(f'<span class="admin-stars">{star_str}</span> <small>({obj.rating_count})</small>')
     rating_display.short_description = "Đánh giá"
 
-    # Actions giảm giá nhanh
+    def actions_column(self, obj):
+        change_url = f"/admin/store/product/{obj.id}/change/"
+        delete_url = f"/admin/store/product/{obj.id}/delete/"
+        view_url = f"/product/{obj.id}/"
+        return mark_safe(
+            f'<div style="display:flex; gap:6px; align-items:center;">'
+            f'<a href="{view_url}" class="row-btn" title="Xem sản phẩm trên web"><i class="fas fa-eye"></i></a>'
+            f'<a href="{change_url}" class="row-btn" title="Chỉnh sửa sản phẩm"><i class="fas fa-pen"></i></a>'
+            f'<a href="{delete_url}" class="row-btn" style="color:#ef4444; background:#ffe4e6; border:1px solid #fecdd3;" title="Xóa vĩnh viễn sản phẩm này" onclick="return confirm(\'Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm [{obj.name}] khỏi hệ thống không?\');"><i class="fas fa-trash-can"></i></a>'
+            f'</div>'
+        )
+    actions_column.short_description = "Thao tác"
+
+    # Actions thao tác hàng loạt
+    @admin.action(description="📋 Nhân bản / Sao chép các sản phẩm đã chọn")
+    def duplicate_products(self, request, queryset):
+        count = 0
+        for product in queryset:
+            colors = list(product.colors.all())
+            product.pk = None
+            product.id = None
+            product.name = f"{product.name} (Bản sao)"
+            product.save()
+            if colors:
+                product.colors.set(colors)
+            count += 1
+        messages.success(request, f"Đã nhân bản thành công {count} sản phẩm mới.")
+
     @admin.action(description="⚡ Áp dụng giảm giá 10%% cho các sản phẩm đã chọn")
     def apply_10_percent_discount(self, request, queryset):
         updated = queryset.update(discount_percent=10)
@@ -111,6 +145,16 @@ class ProductAdmin(admin.ModelAdmin):
     def apply_20_percent_discount(self, request, queryset):
         updated = queryset.update(discount_percent=20)
         messages.success(request, f"Đã áp dụng giảm giá 20% cho {updated} sản phẩm.")
+
+    @admin.action(description="⚡ Áp dụng giảm giá 30%% cho các sản phẩm đã chọn")
+    def apply_30_percent_discount(self, request, queryset):
+        updated = queryset.update(discount_percent=30)
+        messages.success(request, f"Đã áp dụng giảm giá 30% cho {updated} sản phẩm.")
+
+    @admin.action(description="⚡ Áp dụng giảm giá 50%% cho các sản phẩm đã chọn")
+    def apply_50_percent_discount(self, request, queryset):
+        updated = queryset.update(discount_percent=50)
+        messages.success(request, f"Đã áp dụng giảm giá 50% cho {updated} sản phẩm.")
 
     @admin.action(description="❌ Hủy giảm giá (về 0%%) cho các sản phẩm đã chọn")
     def clear_discount(self, request, queryset):
@@ -133,8 +177,29 @@ class CategoryAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'customer_info', 'ordered_products_display', 'total_quantity_display',
-        'total_display', 'payment_badge', 'status', 'created_at_display'
+        'total_display', 'payment_badge', 'status', 'created_at_display', 'actions_column'
     ]
+    list_editable = ['status']
+    list_filter = ['status', 'payment_method', 'created_at']
+    search_fields = ['id', 'full_name', 'phone', 'address', 'user__username', 'user__email', 'items__product__name']
+    readonly_fields = ['created_at', 'updated_at']
+    inlines = [OrderItemInline]
+    date_hierarchy = 'created_at'
+    list_per_page = 20
+    actions = ['mark_confirmed', 'mark_processing', 'mark_shipped', 'mark_delivered', 'mark_cancelled']
+
+    def actions_column(self, obj):
+        change_url = f"/admin/store/order/{obj.id}/change/"
+        delete_url = f"/admin/store/order/{obj.id}/delete/"
+        order_detail_url = f"/order/{obj.id}/"
+        return mark_safe(
+            f'<div style="display:flex; gap:6px; align-items:center;">'
+            f'<a href="{order_detail_url}" class="row-btn" title="Xem chi tiết đơn hàng"><i class="fas fa-receipt"></i></a>'
+            f'<a href="{change_url}" class="row-btn" title="Chỉnh sửa đơn hàng"><i class="fas fa-pen"></i></a>'
+            f'<a href="{delete_url}" class="row-btn" style="color:#ef4444; background:#ffe4e6; border:1px solid #fecdd3;" title="Xóa đơn hàng này" onclick="return confirm(\'Bạn có chắc chắn muốn xóa đơn hàng #{obj.id} không?\');"><i class="fas fa-trash-can"></i></a>'
+            f'</div>'
+        )
+    actions_column.short_description = "Thao tác"
     list_editable = ['status']
     list_filter = ['status', 'payment_method', 'created_at']
     search_fields = ['id', 'full_name', 'phone', 'address', 'user__username', 'user__email', 'items__product__name']

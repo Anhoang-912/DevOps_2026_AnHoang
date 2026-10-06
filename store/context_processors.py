@@ -44,6 +44,9 @@ def store_context(request):
         # Đơn hàng gần đây (6 đơn)
         recent_orders = Order.objects.select_related('user').order_by('-created_at')[:6]
         
+        # Sản phẩm mới nhất (8 sản phẩm)
+        recent_products = Product.objects.select_related('category').order_by('-id')[:8]
+        
         context['admin_stats'] = {
             'total_revenue': total_revenue,
             'total_orders': total_orders,
@@ -55,6 +58,7 @@ def store_context(request):
             'active_cart_items': active_cart_items,
             'active_cart_users': active_cart_users,
             'recent_orders': recent_orders,
+            'recent_products': recent_products,
         }
         
     return context

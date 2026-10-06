@@ -27,7 +27,7 @@
             <strong>{{ user.get_full_name|default:user.username }}</strong>
             {% if user.is_superuser %}<span class="user-role-badge">Superadmin</span>{% endif %}
         </span>
-        <a href="/" class="admin-nav-link btn-store" target="_blank">
+        <a href="/" class="admin-nav-link btn-store">
             <i class="fas fa-store"></i> Xem Cửa Hàng
         </a>
         <a href="{% url 'admin:password_change' %}" class="admin-nav-link">
