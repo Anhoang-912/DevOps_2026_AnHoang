@@ -82,8 +82,8 @@ from decouple import config
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-TURSO_DB_URL = config('TURSO_DB_URL', default='')
-TURSO_AUTH_TOKEN = config('TURSO_AUTH_TOKEN', default='')
+TURSO_DB_URL = str(config('TURSO_DB_URL', default='')).strip()
+TURSO_AUTH_TOKEN = str(config('TURSO_AUTH_TOKEN', default='')).strip()
 
 if TURSO_DB_URL and TURSO_AUTH_TOKEN:
     DATABASES = {
