@@ -90,10 +90,27 @@ from decouple import config
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+MONGODB_HOST = str(config('MONGODB_HOST', default='')).strip()
+MONGODB_NAME = str(config('MONGODB_NAME', default='ecommerce_db')).strip()
+MONGODB_USER = str(config('MONGODB_USER', default='')).strip()
+MONGODB_PASSWORD = str(config('MONGODB_PASSWORD', default='')).strip()
+
 TURSO_DB_URL = str(config('TURSO_DB_URL', default='')).strip()
 TURSO_AUTH_TOKEN = str(config('TURSO_AUTH_TOKEN', default='')).strip()
 
-if TURSO_DB_URL and TURSO_AUTH_TOKEN:
+if MONGODB_HOST and MONGODB_USER and MONGODB_PASSWORD:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_mongodb_backend',
+            'NAME': MONGODB_NAME,
+            'HOST': MONGODB_HOST,
+            'USER': MONGODB_USER,
+            'PASSWORD': MONGODB_PASSWORD,
+            'PORT': '',
+            'OPTIONS': {},
+        }
+    }
+elif TURSO_DB_URL and TURSO_AUTH_TOKEN:
     DATABASES = {
         'default': {
             'ENGINE': 'django_libsql',
@@ -108,6 +125,7 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
 
 
 # Password validation
