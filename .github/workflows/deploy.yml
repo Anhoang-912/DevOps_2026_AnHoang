@@ -86,16 +86,6 @@ jobs:
             cd ~/DevOps_2026_AnHoang
             git checkout -- db.sqlite3 || true
             git pull origin main
-            
-            # Cấu hình .env kết nối MongoDB Atlas trên EC2
-            echo "MONGODB_HOST=mongodb+srv://cluster0.hrrmitg.mongodb.net/?retryWrites=true&w=majority" > .env
-            echo "MONGODB_NAME=ecommerce_db" >> .env
-            echo "MONGODB_USER=an2k52012_db_user" >> .env
-            echo "MONGODB_PASSWORD=Anhoang.912" >> .env
-            echo "SECRET_KEY=django-insecure-lh9+kdxol_(kvcoc0lt#8ro1ntq7x(9\$x7v9x44nu)_oq5\$5w-" >> .env
-            echo "DEBUG=True" >> .env
-
-            ./venv/bin/pip install -r requirements.txt --quiet
             ./venv/bin/python manage.py migrate --noinput
             ./venv/bin/python manage.py seed_products
             ./venv/bin/python manage.py collectstatic --noinput
