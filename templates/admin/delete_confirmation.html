@@ -1,0 +1,317 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ media }}
+    <script src="{% static 'admin/js/cancel.js' %}" async></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}"><i class="fas fa-chart-pie me-1"></i> Bảng điều khiển</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|truncatewords:"10" }}</a>
+  &rsaquo; <span style="color:#ef4444; font-weight:700;">Xác nhận xóa</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+.delete-page-container {
+  max-width: 860px;
+  margin: 10px auto 40px;
+}
+.delete-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+.delete-card-header {
+  background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+  border-bottom: 1px solid #fecdd3;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.delete-danger-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #dc2626;
+  flex-shrink: 0;
+}
+.delete-card-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #991b1b;
+  margin: 0 0 4px 0;
+}
+.delete-card-subtitle {
+  font-size: 0.92rem;
+  color: #7f1d1d;
+  margin: 0;
+}
+.delete-card-body {
+  padding: 26px 28px;
+}
+.delete-target-alert {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #ef4444;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #334155;
+  margin-bottom: 22px;
+}
+.delete-target-name {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 15px;
+}
+.delete-section-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.delete-summary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.delete-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 600;
+}
+.delete-chip-badge {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.delete-tree-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 24px;
+}
+.delete-tree-box ul {
+  list-style: none !important;
+  margin: 4px 0 !important;
+  padding-left: 20px !important;
+  border-left: 2px solid #e2e8f0;
+}
+.delete-tree-box > ul {
+  padding-left: 0 !important;
+  border-left: none !important;
+}
+.delete-tree-box li {
+  position: relative;
+  padding: 5px 8px 5px 18px !important;
+  font-size: 13.5px !important;
+  color: #334155 !important;
+  line-height: 1.4 !important;
+}
+.delete-tree-box li::before {
+  content: "•";
+  position: absolute;
+  left: 4px;
+  top: 5px;
+  color: #ef4444;
+  font-size: 16px;
+}
+.delete-card-footer {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn-delete-confirm {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 22px !important;
+  border-radius: 10px !important;
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3) !important;
+  transition: all 0.15s ease !important;
+}
+.btn-delete-confirm:hover {
+  background: #b91c1c !important;
+  transform: translateY(-1px);
+}
+.btn-delete-cancel {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 20px !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  border: 1px solid #cbd5e1 !important;
+  text-decoration: none !important;
+  transition: all 0.15s ease !important;
+}
+.btn-delete-cancel:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+</style>
+
+<div class="delete-page-container">
+  <div class="delete-card">
+
+    {% if perms_lacking %}
+      <div class="delete-card-header">
+        <div class="delete-danger-icon-box">
+          <i class="fas fa-ban"></i>
+        </div>
+        <div>
+          <h2 class="delete-card-title">Không Đủ Quyền Xóa</h2>
+          <p class="delete-card-subtitle">Tài khoản của bạn không được phân quyền xóa đối tượng này.</p>
+        </div>
+      </div>
+      <div class="delete-card-body">
+        <div class="delete-target-alert">
+          {% blocktranslate with escaped_object=object %}Việc xóa {{ object_name }} '{{ escaped_object }}' sẽ kéo theo việc xóa các đối tượng liên quan nhưng bạn không có quyền xóa:{% endblocktranslate %}
+        </div>
+        <div class="delete-tree-box">
+          <ul>{{ perms_lacking|unordered_list }}</ul>
+        </div>
+      </div>
+      <div class="delete-card-footer">
+        <a href="{% url opts|admin_urlname:'changelist' %}" class="btn-delete-cancel">
+          <i class="fas fa-arrow-left"></i> Quay lại danh sách
+        </a>
+      </div>
+
+    {% elif protected %}
+      <div class="delete-card-header">
+        <div class="delete-danger-icon-box">
+          <i class="fas fa-shield-halved"></i>
+        </div>
+        <div>
+          <h2 class="delete-card-title">Dữ Liệu Được Bảo Vệ</h2>
+          <p class="delete-card-subtitle">Không thể xóa vì đối tượng đang có liên kết ràng buộc chặt chẽ.</p>
+        </div>
+      </div>
+      <div class="delete-card-body">
+        <div class="delete-target-alert">
+          {% blocktranslate with escaped_object=object %}Không thể xóa {{ object_name }} '{{ escaped_object }}' vì đang liên kết với các đối tượng được bảo vệ dưới đây:{% endblocktranslate %}
+        </div>
+        <div class="delete-tree-box">
+          <ul>{{ protected|unordered_list }}</ul>
+        </div>
+      </div>
+      <div class="delete-card-footer">
+        <a href="{% url opts|admin_urlname:'changelist' %}" class="btn-delete-cancel">
+          <i class="fas fa-arrow-left"></i> Quay lại danh sách
+        </a>
+      </div>
+
+    {% else %}
+      <div class="delete-card-header">
+        <div class="delete-danger-icon-box">
+          <i class="fas fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h2 class="delete-card-title">Xác Nhận Xóa Vĩnh Viễn</h2>
+          <p class="delete-card-subtitle">
+            Hành động này <strong>không thể hoàn tác</strong>. Dữ liệu sẽ bị xóa hoàn toàn khỏi hệ thống.
+          </p>
+        </div>
+      </div>
+
+      <div class="delete-card-body">
+        <div class="delete-target-alert">
+          <i class="fas fa-circle-exclamation text-danger me-2"></i>
+          Bạn đang yêu cầu xóa {{ object_name }}: <span class="delete-target-name">"{{ object }}"</span>
+        </div>
+
+        {% if model_count %}
+        <div class="delete-section-title">
+          <i class="fas fa-layer-group text-primary"></i> Tổng số đối tượng bị ảnh hưởng:
+        </div>
+        <div class="delete-summary-grid">
+          {% for model_name, object_count in model_count %}
+            <div class="delete-summary-chip">
+              <span>{{ model_name|capfirst }}</span>
+              <span class="delete-chip-badge">{{ object_count }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="delete-section-title">
+          <i class="fas fa-diagram-project text-primary"></i> Chi tiết các bản ghi đi kèm sẽ bị xóa:
+        </div>
+        <div class="delete-tree-box">
+          <ul id="deleted-objects">{{ deleted_objects|unordered_list }}</ul>
+        </div>
+      </div>
+
+      <form method="post" style="margin:0;">{% csrf_token %}
+        <input type="hidden" name="post" value="yes">
+        {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+        {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+        <div class="delete-card-footer">
+          <button type="submit" class="btn-delete-confirm">
+            <i class="fas fa-trash-can"></i> Có, Tôi Chắc Chắn Muốn Xóa
+          </button>
+          <a href="{% url opts|admin_urlname:'changelist' %}" class="btn-delete-cancel cancel-link">
+            <i class="fas fa-arrow-left"></i> Không, Đưa Tôi Trở Lại
+          </a>
+        </div>
+      </form>
+
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

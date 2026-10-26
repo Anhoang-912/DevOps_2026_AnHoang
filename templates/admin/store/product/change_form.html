@@ -1,0 +1,715 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify humanize store_tags %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static "admin/css/forms.css" %}">
+<style>
+/* ==========================================================================
+   MODERN 2-COLUMN PRODUCT FORM (NO OVERFLOW - NO OVERLAPPING BUTTONS)
+   ========================================================================== */
+.product-dashboard-wrapper {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto 50px;
+  box-sizing: border-box;
+  padding: 0 10px;
+}
+
+/* 1. Header Banner */
+.product-header-banner {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+.product-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.product-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 22px;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.28);
+  flex-shrink: 0;
+}
+.product-title-block h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.product-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+.product-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.btn-prod-ext,
+.product-header-actions .object-tools a,
+.product-header-actions .historylink {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+.btn-prod-ext:hover,
+.product-header-actions .object-tools a:hover,
+.product-header-actions .historylink:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 2. Main 2-Column Responsive Layout */
+.product-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 1080px) {
+  .product-layout-grid {
+    grid-template-columns: 100%;
+  }
+}
+
+/* 3. Left Column Content Cards */
+.product-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.product-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+.product-card-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 18px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Inputs & Form Groups */
+.prod-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.prod-field-group:last-child {
+  margin-bottom: 0;
+}
+.prod-field-group label {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.prod-field-group .req-star {
+  color: #ef4444;
+  font-weight: 700;
+}
+.prod-field-group input[type="text"],
+.prod-field-group input[type="number"],
+.prod-field-group textarea {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+  transition: all 0.15s ease !important;
+}
+
+.prod-field-group select {
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  line-height: normal !important;
+  box-sizing: border-box !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 0 36px 0 14px !important;
+  font-size: 13.5px !important;
+  font-family: inherit !important;
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 16px !important;
+  transition: all 0.15s ease !important;
+}
+
+.prod-field-group select option {
+  padding: 10px 14px !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+.prod-field-group textarea {
+  min-height: 120px !important;
+  height: 120px !important;
+  resize: vertical !important;
+  line-height: 1.6 !important;
+}
+.prod-field-group input[type="text"]:focus,
+.prod-field-group input[type="number"]:focus,
+.prod-field-group select:focus,
+.prod-field-group textarea:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+  outline: none !important;
+}
+
+/* Related Widget Fix (Category dropdown full width + 3 icons) */
+.prod-field-group .related-widget-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+.prod-field-group .related-widget-wrapper select {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  line-height: normal !important;
+  padding: 0 36px 0 14px !important;
+}
+.prod-field-group .related-widget-wrapper-link {
+  flex-shrink: 0 !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 8px !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.15s ease !important;
+  color: #475569 !important;
+  text-decoration: none !important;
+}
+.prod-field-group .related-widget-wrapper-link:hover {
+  background: #eef2ff !important;
+  border-color: #4f46e5 !important;
+  transform: translateY(-1px) !important;
+}
+.prod-field-group .related-widget-wrapper-link img {
+  width: 16px !important;
+  height: 16px !important;
+  display: block !important;
+}
+
+/* File Upload Widget Styling */
+.prod-file-upload-box {
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.prod-current-thumb {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.prod-current-thumb img {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #cbd5e1;
+}
+
+/* Colors Filter Horizontal (Full Width in Left Column) */
+.product-card .selector {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+}
+.product-card .selector-available,
+.product-card .selector-chosen {
+  flex: 1 1 280px !important;
+  width: auto !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+}
+.product-card .selector select {
+  width: 100% !important;
+  height: 190px !important;
+  border: none !important;
+  padding: 8px !important;
+}
+.product-card .selector-available h2,
+.product-card .selector-chosen h2 {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  padding: 9px 14px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  margin: 0 !important;
+}
+
+/* 4. Right Sticky Column */
+.product-side-col {
+  position: sticky;
+  top: 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.product-side-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  box-sizing: border-box;
+}
+
+/* Live Price Calculator Box */
+.price-preview-calc {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.calc-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.calc-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ef4444;
+}
+
+/* Sidebar Submit Actions (NO OVERLAP / PROPER FLOW) */
+.product-side-card .submit-row {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  position: static !important; /* Never overlap */
+}
+.product-side-card .submit-row input[type="submit"].default {
+  width: 100% !important;
+  padding: 12px 18px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3) !important;
+  transition: all 0.15s ease !important;
+}
+.product-side-card .submit-row input[type="submit"].default:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4) !important;
+}
+.product-side-card .submit-row input[type="submit"] {
+  width: 100% !important;
+  padding: 10px 16px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.product-side-card .submit-row input[type="submit"]:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+.product-side-card .submit-row .deletelink {
+  width: 100% !important;
+  justify-content: center !important;
+  padding: 9px !important;
+  border-radius: 8px !important;
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1.5px solid #fecaca !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+}
+.product-side-card .submit-row .deletelink:hover {
+  background: #fee2e2 !important;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}"><i class="fas fa-chart-pie me-1"></i> Bảng điều khiển</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; <span style="color:#0f172a; font-weight:700;">{% if add %}Thêm mới sản phẩm{% else %}{{ original.name|truncatewords:8 }}{% endif %}</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="product-dashboard-wrapper">
+
+  <!-- 1. HEADER BANNER THÔNG TIN SẢN PHẨM -->
+  <div class="product-header-banner">
+    <div class="product-header-left">
+      <div class="product-icon-badge">
+        <i class="fas fa-mobile-screen"></i>
+      </div>
+      <div class="product-title-block">
+        <h1>
+          {% if add %}
+            Thêm Mới Sản Phẩm
+          {% else %}
+            Chỉnh Sửa: {{ original.name }}
+          {% endif %}
+        </h1>
+        <p class="product-subtitle">
+          {% if add %}
+            Nhập thông tin sản phẩm mới, thiết lập giá bán và album hình ảnh.
+          {% else %}
+            Mã SP: <strong>#{{ original.id }}</strong> | Danh mục: <strong>{{ original.category.name|default:"Chưa phân loại" }}</strong>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="product-header-actions">
+      {% if change and original %}
+        <a href="/product/{{ original.id }}/" target="_blank" class="btn-prod-ext">
+          <i class="fas fa-arrow-up-right-from-square text-primary"></i> Xem Trên Cửa Hàng
+        </a>
+      {% endif %}
+      {% block object-tools %}
+        {% if change and not is_popup %}
+          <ul class="object-tools" style="margin:0; padding:0; display:flex; gap:8px; list-style:none;">
+            {% block object-tools-items %}
+              {% change_form_object_tools %}
+            {% endblock %}
+          </ul>
+        {% endif %}
+      {% endblock %}
+    </div>
+  </div>
+
+  <!-- 2. FORM QUẢN TRỊ 2 CỘT -->
+  <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}
+    <div>
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+      {% if errors %}
+        <div class="errornote" style="padding:14px 18px; border-radius:10px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; margin-bottom:20px; font-weight:600; display:flex; align-items:center; gap:8px;">
+          <i class="fas fa-circle-exclamation text-danger" style="font-size:18px;"></i>
+          <div>Vui lòng kiểm tra lại các trường báo lỗi bên dưới trước khi lưu.</div>
+        </div>
+        {{ adminform.form.non_field_errors }}
+      {% endif %}
+
+      <div class="product-layout-grid">
+
+        <!-- ============================================================== -->
+        <!-- CỘT TRÁI (MINMAX 1FR): THÔNG TIN CƠ BẢN, ẢNH, MÀU SẮC, ALBUM     -->
+        <!-- ============================================================== -->
+        <div class="product-main-col">
+
+          <!-- Card 1: Thông tin cơ bản -->
+          <div class="product-card">
+            <div class="product-card-title">
+              <i class="fas fa-cube text-primary"></i>
+              <span>1. Thông Tin Cơ Bản</span>
+            </div>
+
+            <div class="prod-field-group">
+              <label for="id_name">Tên sản phẩm: <span class="req-star">*</span></label>
+              {{ adminform.form.name }}
+              {% if adminform.form.name.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.name.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="prod-field-group">
+              <label for="id_category">Danh mục sản phẩm: <span class="req-star">*</span></label>
+              {{ adminform.form.category }}
+              {% if adminform.form.category.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.category.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="prod-field-group">
+              <label for="id_description">Mô tả chi tiết sản phẩm:</label>
+              {{ adminform.form.description }}
+              {% if adminform.form.description.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.description.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Card 2: Hình ảnh đại diện chính -->
+          <div class="product-card">
+            <div class="product-card-title">
+              <i class="fas fa-image text-primary"></i>
+              <span>2. Hình Ảnh Đại Diện Chính</span>
+            </div>
+
+            <div class="prod-field-group">
+              <label for="id_image">Tải lên ảnh bìa sản phẩm:</label>
+              <div class="prod-file-upload-box">
+                {% if original and original.image %}
+                  <div class="prod-current-thumb">
+                    <img src="{{ original.image.url }}" alt="{{ original.name }}">
+                    <div>
+                      <div style="font-weight:700; color:#0f172a; font-size:13px;">Ảnh đại diện hiện tại</div>
+                      <div style="font-size:12px; color:#64748b; margin-top:2px;">{{ original.image.name }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+                {{ adminform.form.image }}
+              </div>
+              {% if adminform.form.image.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.image.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Card 3: Tùy chọn màu sắc sản phẩm (RỘNG RÃI TRONG CỘT TRÁI) -->
+          <div class="product-card">
+            <div class="product-card-title">
+              <i class="fas fa-palette text-primary"></i>
+              <span>3. Tùy Chọn Màu Sắc Khách Hàng Có Thể Chọn</span>
+            </div>
+
+            <div class="prod-field-group">
+              {{ adminform.form.colors }}
+              {% if adminform.form.colors.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.colors.errors|striptags }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Card 4: Inlines - Album ảnh theo màu -->
+          <div class="product-card">
+            <div class="product-card-title">
+              <i class="fas fa-images text-primary"></i>
+              <span>4. Album Ảnh Chi Tiết Theo Từng Góc Chụp / Màu Sắc</span>
+            </div>
+            {% block inline_field_sets %}
+              {% for inline_admin_formset in inline_admin_formsets %}
+                {% include inline_admin_formset.opts.template %}
+              {% endfor %}
+            {% endblock %}
+          </div>
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- CỘT PHẢI (STICKY 360PX): GIÁ CẢ & NÚT LƯU CỐ ĐỊNH                 -->
+        <!-- ============================================================== -->
+        <div class="product-side-col">
+
+          <!-- Card 1: Giá Cả & Khuyến Mãi -->
+          <div class="product-side-card">
+            <div class="product-card-title" style="margin-bottom:16px;">
+              <i class="fas fa-tag text-success"></i>
+              <span>Thiết Lập Giá & Ưu Đãi</span>
+            </div>
+
+            <div class="prod-field-group">
+              <label for="id_price">Giá gốc niêm yết (VNĐ): <span class="req-star">*</span></label>
+              {{ adminform.form.price }}
+              {% if adminform.form.price.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.price.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <div class="prod-field-group">
+              <label for="id_discount_percent">Phần trăm giảm giá (%):</label>
+              {{ adminform.form.discount_percent }}
+              {% if adminform.form.discount_percent.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.discount_percent.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Khung xem trước giá bán thực tế -->
+            <div class="price-preview-calc">
+              <span class="calc-label">Giá bán thực tế:</span>
+              <span class="calc-value" id="calc-preview-price">
+                {% if original and original.has_discount %}
+                  {{ original.discount_price|format_vnd }}
+                {% elif original %}
+                  {{ original.price|format_vnd }}
+                {% else %}
+                  0 ₫
+                {% endif %}
+              </span>
+            </div>
+          </div>
+
+          <!-- Card 2: Hành Động Lưu Trữ (Dedicated Save Card) -->
+          <div class="product-side-card">
+            <div class="product-card-title" style="margin-bottom:14px;">
+              <i class="fas fa-floppy-disk text-primary"></i>
+              <span>Lưu & Xuất Bản</span>
+            </div>
+
+            <div class="submit-row">
+              <input type="submit" value="💾 Lưu Sản Phẩm" class="default" name="_save">
+              <input type="submit" value="Lưu và tiếp tục sửa" name="_continue">
+              <input type="submit" value="➕ Lưu và thêm mới" name="_addanother">
+              {% if show_delete_link and original %}
+                {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+                <a href="{% add_preserved_filters delete_url %}" class="deletelink"><i class="fas fa-trash-can me-1"></i> Xóa sản phẩm</a>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<script>
+// Tự động tính giá bán thực tế khi gõ giá gốc hoặc % giảm giá
+function updateCalculatedPrice() {
+  var priceInput = document.getElementById('id_price');
+  var discountInput = document.getElementById('id_discount_percent');
+  var previewEl = document.getElementById('calc-preview-price');
+
+  if (priceInput && previewEl) {
+    var price = parseFloat(priceInput.value) || 0;
+    var discount = discountInput ? (parseFloat(discountInput.value) || 0) : 0;
+    var finalPrice = price * (100 - discount) / 100;
+    previewEl.textContent = Math.round(finalPrice).toLocaleString('vi-VN') + ' ₫';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var priceInput = document.getElementById('id_price');
+  var discountInput = document.getElementById('id_discount_percent');
+  if (priceInput) priceInput.addEventListener('input', updateCalculatedPrice);
+  if (discountInput) discountInput.addEventListener('input', updateCalculatedPrice);
+});
+</script>
+
+{% block admin_change_form_document_ready %}
+<script id="django-admin-form-add-constants"
+        src="{% static 'admin/js/change_form.js' %}"
+        {% if adminform and add %}
+            data-model-name="{{ opts.model_name }}"
+        {% endif %}
+        async>
+</script>
+{% endblock %}
+
+{# JavaScript for prepopulated fields #}
+{% prepopulated_fields_js %}
+{% endblock %}

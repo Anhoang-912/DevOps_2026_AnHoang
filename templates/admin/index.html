@@ -1,571 +1,757 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static humanize %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/modern_admin.css" %}">{% endblock %}
-
 {% block coltype %}colM{% endblock %}
-
-{% block bodyclass %}{{ block.super }} dashboard unified-dashboard{% endblock %}
-
-{% block nav-breadcrumbs %}{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard-clean{% endblock %}
 {% block nav-sidebar %}{% endblock %}
 {% block content_title %}{% endblock %}
 {% block content_subtitle %}{% endblock %}
 
 {% block content %}
-<div class="admin-dashboard-wrapper">
+<style>
+/* ==========================================================================
+   MODERN ADMIN DASHBOARD STYLES (EMBEDDED FOR 100% RELIABILITY)
+   ========================================================================== */
+.dash-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 8px 48px;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #1e293b;
+}
 
-  <!-- 1. Header Chào Mừng -->
-  <div class="dashboard-hero-banner">
-      <div class="hero-left">
-          <div class="hero-icon">
-              <i class="fas fa-gauge-high"></i>
-          </div>
-          <div>
-              <h2 class="hero-title">Bảng Điều Khiển & Quản Trị Hệ Thống</h2>
-              <p class="hero-subtitle">
-                  Xin chào, <strong>{{ user.get_full_name|default:user.username }}</strong>! 
-                  Chúc bạn có một ngày kinh doanh hiệu quả và thuận lợi.
-              </p>
-          </div>
-      </div>
-      <div class="hero-right">
-          <span class="system-status-chip">
-              <span class="pulse-dot"></span> Hệ thống đang hoạt động
-          </span>
-          <span class="time-chip">
-              <i class="fas fa-calendar-day me-1"></i> {% now "l, d/m/Y" %}
-          </span>
-      </div>
-  </div>
+/* 1. Hero Welcome Header */
+.dash-hero-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.dash-hero-info h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.dash-hero-info h1 i {
+    color: #4f46e5;
+}
+.dash-hero-info p {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin: 0;
+}
+.dash-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.dash-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+.dash-btn-primary {
+    background: #4f46e5;
+    color: #ffffff !important;
+    border: 1px solid #4f46e5;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+.dash-btn-primary:hover {
+    background: #4338ca;
+    transform: translateY(-1px);
+}
+.dash-btn-ghost {
+    background: #f8fafc;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1;
+}
+.dash-btn-ghost:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+.dash-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid #a7f3d0;
+}
+.dash-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 2px #d1fae5;
+}
 
-  <!-- 2. Thanh Phím Tắt Thao Tác Nhanh (Quick Actions Toolbar) -->
-  <div class="dashboard-toolbar">
-      <div class="toolbar-label"><i class="fas fa-bolt text-warning me-1"></i> Thao tác nhanh:</div>
-      <div class="toolbar-actions">
-          <a href="{% url 'admin:store_product_add' %}" class="quick-btn btn-primary-action">
-              <i class="fas fa-plus-circle"></i> Thêm Sản Phẩm Mới
-          </a>
-          <a href="{% url 'admin:store_order_changelist' %}" class="quick-btn btn-order-action">
-              <i class="fas fa-shopping-bag"></i> Quản Lý Đơn Hàng
-          </a>
-          <a href="{% url 'admin:store_cartitem_changelist' %}" class="quick-btn btn-cart-action">
-              <i class="fas fa-shopping-cart"></i> Giỏ Hàng Đang Chờ Đặt 
-              <span class="btn-badge">{{ admin_stats.active_cart_items|default:0 }}</span>
-          </a>
-          <a href="/bulk-discount/" class="quick-btn btn-discount-action">
-              <i class="fas fa-tags"></i> Giảm Giá Hàng Loạt
-          </a>
-          <a href="{% url 'admin:auth_user_changelist' %}" class="quick-btn btn-user-action">
-              <i class="fas fa-users"></i> Khách Hàng
-          </a>
-          <a href="/" class="quick-btn btn-store-action">
-              <i class="fas fa-arrow-up-right-from-square"></i> Xem Cửa Hàng
-          </a>
-      </div>
-  </div>
+/* 2. KPI Summary Grid */
+.dash-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
+}
+@media (max-width: 1024px) {
+    .dash-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+    .dash-kpi-grid { grid-template-columns: 1fr; }
+}
+.dash-kpi-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 22px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    position: relative;
+    overflow: hidden;
+}
+.dash-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+    border-color: #cbd5e1;
+}
+.kpi-icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.kpi-icon-green { background: #ecfdf5; color: #059669; }
+.kpi-icon-blue { background: #eff6ff; color: #2563eb; }
+.kpi-icon-purple { background: #f5f3ff; color: #7c3aed; }
+.kpi-icon-cyan { background: #f0f9ff; color: #0284c7; }
 
-  {% if admin_stats %}
-  <!-- 3. Lưới Thống Kê KPI Chỉ Số Bán Hàng (5 Thẻ Đồng Bộ) -->
-  <div class="kpi-five-grid">
-      <!-- KPI 1: Doanh thu -->
-      <div class="kpi-stat-card card-revenue">
-          <div class="kpi-icon-box icon-revenue">
-              <i class="fas fa-wallet"></i>
-          </div>
-          <div class="kpi-info">
-              <span class="kpi-title">Tổng Doanh Thu</span>
-              <div class="kpi-number">{{ admin_stats.total_revenue|intcomma }} <small>VNĐ</small></div>
-              <span class="kpi-hint text-success"><i class="fas fa-circle-check me-1"></i>Từ các đơn thành công</span>
-          </div>
-      </div>
+.kpi-info-block {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.kpi-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 4px;
+}
+.kpi-main-val {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+.kpi-main-val small {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+}
+.kpi-sub-text {
+    font-size: 0.8rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.kpi-tag-alert {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #fffbeb;
+    color: #b45309;
+    font-weight: 700;
+    font-size: 0.75rem;
+    border: 1px solid #fde68a;
+}
+.kpi-tag-success {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #ecfdf5;
+    color: #059669;
+    font-weight: 700;
+    font-size: 0.75rem;
+    border: 1px solid #a7f3d0;
+}
 
-      <!-- KPI 2: Đơn hàng đã đặt -->
-      <a href="{% url 'admin:store_order_changelist' %}" class="kpi-stat-card card-orders">
-          <div class="kpi-icon-box icon-orders">
-              <i class="fas fa-receipt"></i>
-          </div>
-          <div class="kpi-info">
-              <span class="kpi-title">Đơn Hàng Đã Đặt</span>
-              <div class="kpi-number">{{ admin_stats.total_orders }} <small>đơn</small></div>
-              <span class="kpi-hint">
-                  {% if admin_stats.pending_orders > 0 %}
-                      <span class="badge-pill bg-warning text-dark"><i class="fas fa-clock me-1"></i>{{ admin_stats.pending_orders }} chờ duyệt</span>
-                  {% else %}
-                      <span class="badge-pill bg-success text-white">Đã xử lý xong</span>
-                  {% endif %}
-              </span>
-          </div>
-      </a>
+/* 3. Main Dashboard 2-Column Layout */
+.dash-main-grid {
+    display: grid;
+    grid-template-columns: 65% 35%;
+    gap: 24px;
+}
+@media (max-width: 1024px) {
+    .dash-main-grid { grid-template-columns: 1fr; }
+}
 
-      <!-- KPI 3: Giỏ hàng chưa đặt -->
-      <a href="{% url 'admin:store_cartitem_changelist' %}" class="kpi-stat-card card-cart">
-          <div class="kpi-icon-box icon-cart">
-              <i class="fas fa-cart-shopping"></i>
-          </div>
-          <div class="kpi-info">
-              <span class="kpi-title">Giỏ Hàng Chờ Đặt</span>
-              <div class="kpi-number">{{ admin_stats.active_cart_items }} <small>món</small></div>
-              <span class="kpi-hint">
-                  <span class="badge-pill bg-amber text-dark">{{ admin_stats.active_cart_users }} khách đang chọn &rarr;</span>
-              </span>
-          </div>
-      </a>
+/* 4. Dashboard Cards */
+.dash-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+.dash-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+}
+.dash-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.dash-card-subtitle {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 3px 0 0 0;
+}
+.dash-card-more-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4f46e5;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.dash-card-more-link:hover {
+    color: #3730a3;
+    text-decoration: underline;
+}
 
-      <!-- KPI 4: Sản phẩm trong kho -->
-      <a href="{% url 'admin:store_product_changelist' %}" class="kpi-stat-card card-products">
-          <div class="kpi-icon-box icon-products">
-              <i class="fas fa-box-open"></i>
-          </div>
-          <div class="kpi-info">
-              <span class="kpi-title">Sản Phẩm Trong Kho</span>
-              <div class="kpi-number">{{ admin_stats.total_products }} <small>mẫu</small></div>
-              <span class="kpi-hint">
-                  <span class="badge-pill bg-rose text-white">{{ admin_stats.discounted_products }} đang khuyến mãi</span>
-              </span>
-          </div>
-      </a>
+/* 5. Clean Orders Table */
+.dash-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+.dash-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+.dash-orders-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 18px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    white-space: nowrap;
+}
+.dash-orders-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: #334155;
+}
+.dash-orders-table tbody tr:hover td {
+    background: #f8fafc;
+}
+.dash-orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.order-pill-code {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 6px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-decoration: none;
+}
+.order-pill-code:hover {
+    background: #e0e7ff;
+}
+.customer-block {
+    display: flex;
+    flex-direction: column;
+}
+.customer-name {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 0.88rem;
+}
+.customer-phone {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+.order-price-bold {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 0.92rem;
+}
 
-      <!-- KPI 5: Khách hàng -->
-      <a href="{% url 'admin:auth_user_changelist' %}" class="kpi-stat-card card-users">
-          <div class="kpi-icon-box icon-users">
-              <i class="fas fa-user-group"></i>
-          </div>
-          <div class="kpi-info">
-              <span class="kpi-title">Khách Hàng Thành Viên</span>
-              <div class="kpi-number">{{ admin_stats.total_customers }} <small>người</small></div>
-              <span class="kpi-hint text-muted"><i class="fas fa-shield me-1"></i>Tài khoản mua sắm</span>
-          </div>
-      </a>
-  </div>
-  {% endif %}
+/* Status Badges */
+.status-badge-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.badge-st-pending { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.badge-st-confirmed { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.badge-st-processing { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+.badge-st-shipped { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.badge-st-delivered { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+.badge-st-cancelled { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
-  <!-- 4. Khu Vực Nội Dung Chính 2 Cột Cân Đối (Grid 70% / 30%) -->
-  <div class="dashboard-main-columns">
+.btn-order-view {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+.btn-order-view:hover {
+    background: #4f46e5;
+    color: #ffffff;
+}
 
-      <!-- CỘT TRÁI (LEFT MAIN COLUMN - 70%) -->
-      <div class="dashboard-left-column">
+/* 6. Quick Management Hub Section (Right Column) */
+.hub-group-card {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.hub-group-card:last-child {
+    border-bottom: none;
+}
+.hub-group-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.dash-wrapper ul,
+.dash-wrapper li,
+.hub-link-list,
+.hub-link-list li {
+    list-style: none !important;
+    list-style-type: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.hub-link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.hub-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    text-decoration: none;
+    color: #334155;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+.hub-item-row:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    transform: translateX(3px);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+}
+.hub-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.hub-item-left i {
+    width: 18px;
+    text-align: center;
+}
+.hub-count-pill {
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.hub-action-plus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #eef2ff;
+    color: #4f46e5;
+    text-decoration: none;
+    font-size: 11px;
+    transition: background 0.15s;
+}
+.hub-action-plus:hover {
+    background: #4f46e5;
+    color: #ffffff;
+}
+</style>
 
-          <!-- 4.1 Bảng Đơn Hàng Gần Đây Cần Theo Dõi -->
-          {% if admin_stats.recent_orders %}
-          <div class="unified-card mb-4">
-              <div class="card-header-flex">
-                  <div class="card-title-group">
-                      <div class="title-icon icon-indigo"><i class="fas fa-clock-rotate-left"></i></div>
-                      <div>
-                          <h3 class="card-title">Đơn Hàng Gần Đây Cần Theo Dõi</h3>
-                          <p class="card-desc">Danh sách các đơn đặt hàng mới nhất từ khách hàng</p>
-                      </div>
-                  </div>
-                  <a href="{% url 'admin:store_order_changelist' %}" class="card-action-link">
-                      Xem tất cả đơn hàng <i class="fas fa-arrow-right ms-1"></i>
-                  </a>
-              </div>
+<div class="dash-wrapper">
 
-              <div class="table-responsive">
-                  <table class="unified-table">
-                      <thead>
-                          <tr>
-                              <th style="width: 70px;">MÃ ĐƠN</th>
-                              <th>KHÁCH HÀNG</th>
-                              <th>TỔNG TIỀN</th>
-                              <th>THANH TOÁN</th>
-                              <th>TRẠNG THÁI</th>
-                              <th>THỜI GIAN</th>
-                              <th style="text-align: right; width: 90px;">CHI TIẾT</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {% for order in admin_stats.recent_orders %}
-                          <tr>
-                              <td>
-                                  <a href="{% url 'admin:store_order_change' order.id %}" class="order-id-badge">
-                                      #{{ order.id }}
-                                  </a>
-                              </td>
-                              <td>
-                                  <strong>{{ order.full_name|default:order.user.username }}</strong>
-                                  <div class="text-muted small">
-                                      <i class="fas fa-phone me-1" style="font-size: 10px;"></i>{{ order.phone|default:"Chưa có SĐT" }}
-                                  </div>
-                              </td>
-                              <td>
-                                  <strong class="text-primary-dark">{{ order.total|intcomma }} VNĐ</strong>
-                              </td>
-                              <td>
-                                  <span class="admin-badge badge-payment">{{ order.get_payment_method_display }}</span>
-                              </td>
-                              <td>
-                                  {% if order.status == 'pending' %}
-                                      <span class="admin-badge badge-pending"><i class="fas fa-clock me-1"></i>Chờ xử lý</span>
-                                  {% elif order.status == 'confirmed' %}
-                                      <span class="admin-badge badge-confirmed"><i class="fas fa-check me-1"></i>Đã xác nhận</span>
-                                  {% elif order.status == 'processing' %}
-                                      <span class="admin-badge badge-processing"><i class="fas fa-box me-1"></i>Đang xử lý</span>
-                                  {% elif order.status == 'shipped' %}
-                                      <span class="admin-badge badge-shipped"><i class="fas fa-truck me-1"></i>Đang giao</span>
-                                  {% elif order.status == 'delivered' %}
-                                      <span class="admin-badge badge-delivered"><i class="fas fa-circle-check me-1"></i>Đã giao</span>
-                                  {% else %}
-                                      <span class="admin-badge badge-cancelled"><i class="fas fa-ban me-1"></i>Đã hủy</span>
-                                  {% endif %}
-                              </td>
-                              <td class="text-muted small">
-                                  {{ order.created_at|date:"d/m/Y H:i" }}
-                              </td>
-                              <td style="text-align: right;">
-                                  <a href="{% url 'admin:store_order_change' order.id %}" class="row-btn" title="Xem chi tiết đơn hàng">
-                                      <i class="fas fa-arrow-right"></i>
-                                  </a>
-                              </td>
-                          </tr>
-                          {% endfor %}
-                      </tbody>
-                  </table>
-              </div>
-          </div>
-          {% endif %}
+    <!-- 1. HERO BANNER CHÀO MỪNG -->
+    <div class="dash-hero-card">
+        <div class="dash-hero-info">
+            <h1>
+                <i class="fas fa-layer-group"></i> Bảng Điều Khiển Quản Trị
+            </h1>
+            <p>
+                Xin chào, <strong>{{ user.get_full_name|default:user.username }}</strong>! Chúc bạn một ngày quản lý kinh doanh hiệu quả.
+            </p>
+        </div>
+        <div class="dash-hero-actions">
+            <span class="dash-status-pill">
+                <span class="dash-status-dot"></span> Hệ thống sẵn sàng
+            </span>
+            <a href="{% url 'admin:store_product_add' %}" class="dash-btn dash-btn-primary">
+                <i class="fas fa-plus"></i> Thêm Sản Phẩm Mới
+            </a>
+            <a href="/" target="_blank" class="dash-btn dash-btn-ghost">
+                <i class="fas fa-arrow-up-right-from-square"></i> Xem Cửa Hàng
+            </a>
+        </div>
+    </div>
 
-          <!-- 4.1.2 Bảng Danh Sách & Xóa Sản Phẩm Nhanh -->
-          {% if admin_stats.recent_products %}
-          <div class="unified-card mb-4">
-              <div class="card-header-flex">
-                  <div class="card-title-group">
-                      <div class="title-icon icon-rose" style="background:#ffe4e6; color:#be123c;"><i class="fas fa-boxes-stacked"></i></div>
-                      <div>
-                          <h3 class="card-title">Quản Lý & Xóa Sản Phẩm Nhanh</h3>
-                          <p class="card-desc">Danh sách sản phẩm gần đây - Thao tác chỉnh sửa và xóa trực tiếp</p>
-                      </div>
-                  </div>
-                  <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                      <a href="{% url 'admin:store_product_add' %}" class="quick-btn btn-primary-action" style="padding: 6px 12px; font-size: 12px;">
-                          <i class="fas fa-plus"></i> Thêm mới
-                      </a>
-                      <a href="{% url 'admin:store_product_changelist' %}" class="card-action-link">
-                          Xem tất cả sản phẩm <i class="fas fa-arrow-right ms-1"></i>
-                      </a>
-                  </div>
-              </div>
+    <!-- 2. 4 THẺ THỐNG KÊ KPI RÕ RÀNG, TRỰC QUAN -->
+    <div class="dash-kpi-grid">
+        <!-- Doanh Thu -->
+        <div class="dash-kpi-card">
+            <div class="kpi-icon-box kpi-icon-green">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="kpi-info-block">
+                <span class="kpi-label">Tổng Doanh Thu</span>
+                <span class="kpi-main-val">{{ admin_stats.total_revenue|intcomma }} <small>VNĐ</small></span>
+                <span class="kpi-sub-text">
+                    <i class="fas fa-check-circle text-success"></i> Từ các đơn hoàn tất
+                </span>
+            </div>
+        </div>
 
-              <div class="table-responsive">
-                  <table class="unified-table">
-                      <thead>
-                          <tr>
-                              <th style="width: 50px;">MÃ</th>
-                              <th style="width: 60px;">ẢNH</th>
-                              <th>TÊN SẢN PHẨM</th>
-                              <th>DANH MỤC</th>
-                              <th>GIÁ BÁN</th>
-                              <th>KHUYẾN MÃI</th>
-                              <th style="text-align: right; width: 130px;">THAO TÁC</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {% for product in admin_stats.recent_products %}
-                          <tr>
-                              <td>
-                                  <a href="{% url 'admin:store_product_change' product.id %}" class="order-id-badge">
-                                      #{{ product.id }}
-                                  </a>
-                              </td>
-                              <td>
-                                  {% if product.image %}
-                                      <img src="{{ product.image.url }}" class="admin-thumb" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover;" />
-                                  {% else %}
-                                      <div style="width:38px; height:38px; background:#f1f5f9; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:10px;">No pic</div>
-                                  {% endif %}
-                              </td>
-                              <td>
-                                  <strong>{{ product.name }}</strong>
-                              </td>
-                              <td>
-                                  <span class="admin-badge badge-payment">{{ product.category.name }}</span>
-                              </td>
-                              <td>
-                                  {% if product.has_discount %}
-                                      <strong style="color: #ef4444;">{{ product.discount_price|intcomma }} ₫</strong>
-                                      <div class="text-muted small" style="text-decoration: line-through;">{{ product.price|intcomma }} ₫</div>
-                                  {% else %}
-                                      <strong class="text-primary-dark">{{ product.price|intcomma }} ₫</strong>
-                                  {% endif %}
-                              </td>
-                              <td>
-                                  {% if product.has_discount %}
-                                      <span class="admin-badge badge-discount">-{{ product.discount_percent }}%</span>
-                                  {% else %}
-                                      <span class="text-muted small">—</span>
-                                  {% endif %}
-                              </td>
-                              <td style="text-align: right;">
-                                  <div style="display: inline-flex; gap: 6px; justify-content: flex-end;">
-                                      <a href="/product/{{ product.id }}/" class="row-btn" title="Xem trên web">
-                                          <i class="fas fa-eye"></i>
-                                      </a>
-                                      <a href="{% url 'admin:store_product_change' product.id %}" class="row-btn" title="Chỉnh sửa sản phẩm">
-                                          <i class="fas fa-pen"></i>
-                                      </a>
-                                      <a href="{% url 'admin:store_product_delete' product.id %}" class="row-btn" style="color: #ef4444; background: #ffe4e6; border: 1px solid #fecdd3;" title="Xóa vĩnh viễn sản phẩm" onclick="return confirm('Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm [{{ product.name|escapejs }}] khỏi hệ thống không?');">
-                                          <i class="fas fa-trash-can"></i>
-                                      </a>
-                                  </div>
-                              </td>
-                          </tr>
-                          {% endfor %}
-                      </tbody>
-                  </table>
-              </div>
-          </div>
-          {% endif %}
+        <!-- Đơn Hàng -->
+        <a href="{% url 'admin:store_order_changelist' %}" class="dash-kpi-card" title="Xem danh sách đơn hàng">
+            <div class="kpi-icon-box kpi-icon-blue">
+                <i class="fas fa-bag-shopping"></i>
+            </div>
+            <div class="kpi-info-block">
+                <span class="kpi-label">Đơn Hàng</span>
+                <span class="kpi-main-val">{{ admin_stats.total_orders|default:0 }} <small>đơn</small></span>
+                <span class="kpi-sub-text">
+                    {% if admin_stats.pending_orders > 0 %}
+                        <span class="kpi-tag-alert"><i class="fas fa-clock me-1"></i>{{ admin_stats.pending_orders }} đơn cần duyệt</span>
+                    {% else %}
+                        <span class="kpi-tag-success"><i class="fas fa-check me-1"></i>Đã xử lý xong</span>
+                    {% endif %}
+                </span>
+            </div>
+        </a>
 
-          <!-- 4.2 Trung Tâm Quản Trị Danh Mục & Dữ Liệu (Categorized Management Hub) -->
-          <div class="unified-card">
-              <div class="card-header-flex">
-                  <div class="card-title-group">
-                      <div class="title-icon icon-purple"><i class="fas fa-layer-group"></i></div>
-                      <div>
-                          <h3 class="card-title">Trung Tâm Quản Trị Danh Mục</h3>
-                          <p class="card-desc">Truy cập nhanh tất cả các nhóm dữ liệu của website</p>
-                      </div>
-                  </div>
-              </div>
+        <!-- Sản Phẩm Trong Kho -->
+        <a href="{% url 'admin:store_product_changelist' %}" class="dash-kpi-card" title="Xem danh sách sản phẩm">
+            <div class="kpi-icon-box kpi-icon-purple">
+                <i class="fas fa-boxes-stacked"></i>
+            </div>
+            <div class="kpi-info-block">
+                <span class="kpi-label">Sản Phẩm Trong Kho</span>
+                <span class="kpi-main-val">{{ admin_stats.total_products|default:0 }} <small>mẫu</small></span>
+                <span class="kpi-sub-text">
+                    {% if admin_stats.discounted_products > 0 %}
+                        <span class="kpi-tag-alert"><i class="fas fa-tag me-1"></i>{{ admin_stats.discounted_products }} mẫu giảm giá</span>
+                    {% else %}
+                        Giá niêm yết chuẩn
+                    {% endif %}
+                </span>
+            </div>
+        </a>
 
-              <div class="mgmt-hub-grid">
-                  <!-- Nhóm 1: Quản Lý Bán Hàng -->
-                  <div class="mgmt-group-box">
-                      <div class="mgmt-group-header header-sales">
-                          <i class="fas fa-cash-register me-2"></i> 1. Quản Lý Bán Hàng
-                      </div>
-                      <div class="mgmt-items-list">
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_order_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-indigo"><i class="fas fa-receipt"></i></span>
-                                  <span class="item-name">Đơn Hàng (Orders)</span>
-                              </a>
-                              <div class="mgmt-actions">
-                                  <a href="{% url 'admin:store_order_add' %}" class="btn-mini-add" title="Thêm đơn hàng">+ Thêm</a>
-                              </div>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_cartitem_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-amber"><i class="fas fa-cart-arrow-down"></i></span>
-                                  <span class="item-name">Giỏ Hàng Khách Chọn (Cart Items)</span>
-                              </a>
-                              <span class="item-counter">{{ admin_stats.active_cart_items|default:0 }}</span>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_orderitem_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-blue"><i class="fas fa-list-check"></i></span>
-                                  <span class="item-name">Chi Tiết Món Đặt (Order Items)</span>
-                              </a>
-                          </div>
-                      </div>
-                  </div>
+        <!-- Khách Hàng -->
+        <a href="{% url 'admin:auth_user_changelist' %}" class="dash-kpi-card" title="Xem danh sách khách hàng">
+            <div class="kpi-icon-box kpi-icon-cyan">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="kpi-info-block">
+                <span class="kpi-label">Khách Hàng</span>
+                <span class="kpi-main-val">{{ admin_stats.total_customers|default:0 }} <small>tài khoản</small></span>
+                <span class="kpi-sub-text">
+                    {% if admin_stats.active_cart_items > 0 %}
+                        <span class="text-primary font-semibold"><i class="fas fa-cart-shopping me-1"></i>{{ admin_stats.active_cart_items }} món trong giỏ</span>
+                    {% else %}
+                        Thành viên mua sắm
+                    {% endif %}
+                </span>
+            </div>
+        </a>
+    </div>
 
-                  <!-- Nhóm 2: Quản Lý Sản Phẩm -->
-                  <div class="mgmt-group-box">
-                      <div class="mgmt-group-header header-products">
-                          <i class="fas fa-boxes-stacked me-2"></i> 2. Kho Hàng & Sản Phẩm
-                      </div>
-                      <div class="mgmt-items-list">
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_product_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-purple"><i class="fas fa-mobile-screen"></i></span>
-                                  <span class="item-name">Sản Phẩm (Products)</span>
-                              </a>
-                              <div class="mgmt-actions">
-                                  <a href="{% url 'admin:store_product_add' %}" class="btn-mini-add" title="Thêm sản phẩm">+ Thêm</a>
-                              </div>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_category_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-rose"><i class="fas fa-tags"></i></span>
-                                  <span class="item-name">Danh Mục (Categories)</span>
-                              </a>
-                              <div class="mgmt-actions">
-                                  <a href="{% url 'admin:store_category_add' %}" class="btn-mini-add" title="Thêm danh mục">+ Thêm</a>
-                              </div>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_color_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-teal"><i class="fas fa-palette"></i></span>
-                                  <span class="item-name">Màu Sắc (Colors)</span>
-                              </a>
-                              <div class="mgmt-actions">
-                                  <a href="{% url 'admin:store_color_add' %}" class="btn-mini-add" title="Thêm màu">+ Thêm</a>
-                              </div>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_productimage_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-emerald"><i class="fas fa-images"></i></span>
-                                  <span class="item-name">Ảnh Sản Phẩm (Images)</span>
-                              </a>
-                              <div class="mgmt-actions">
-                                  <a href="{% url 'admin:store_productimage_add' %}" class="btn-mini-add" title="Thêm ảnh">+ Thêm</a>
-                              </div>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_review_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-warning"><i class="fas fa-star"></i></span>
-                                  <span class="item-name">Đánh Giá (Reviews)</span>
-                              </a>
-                          </div>
-                      </div>
-                  </div>
+    <!-- 3. KHỐI NỘI DUNG CHÍNH (2 CỘT: 65% / 35%) -->
+    <div class="dash-main-grid">
 
-                  <!-- Nhóm 3: Người Dùng & Địa Lý -->
-                  <div class="mgmt-group-box">
-                      <div class="mgmt-group-header header-users">
-                          <i class="fas fa-users-gear me-2"></i> 3. Người Dùng & Địa Lý
-                      </div>
-                      <div class="mgmt-items-list">
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:auth_user_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-sky"><i class="fas fa-user-lock"></i></span>
-                                  <span class="item-name">Tài Khoản (Users)</span>
-                              </a>
-                              <div class="mgmt-actions">
-                                  <a href="{% url 'admin:auth_user_add' %}" class="btn-mini-add" title="Thêm user">+ Thêm</a>
-                              </div>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_profile_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-indigo"><i class="fas fa-id-card"></i></span>
-                                  <span class="item-name">Hồ Sơ Cá Nhân (Profiles)</span>
-                              </a>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:auth_group_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-slate"><i class="fas fa-shield"></i></span>
-                                  <span class="item-name">Nhóm Quyền Hạn (Groups)</span>
-                              </a>
-                              <div class="mgmt-actions">
-                                  <a href="{% url 'admin:auth_group_add' %}" class="btn-mini-add" title="Thêm nhóm">+ Thêm</a>
-                              </div>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_province_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-emerald"><i class="fas fa-map-location-dot"></i></span>
-                                  <span class="item-name">Tỉnh / Thành Phố (Provinces)</span>
-                              </a>
-                          </div>
-                          <div class="mgmt-item">
-                              <a href="{% url 'admin:store_district_changelist' %}" class="mgmt-item-link">
-                                  <span class="item-icon bg-teal"><i class="fas fa-location-dot"></i></span>
-                                  <span class="item-name">Quận / Huyện & Phường / Xã</span>
-                              </a>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
+        <!-- CỘT TRÁI: BẢNG ĐƠN HÀNG MỚI NHẤT -->
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <div>
+                    <h2 class="dash-card-title">
+                        <i class="fas fa-clock-rotate-left text-primary"></i> Đơn Hàng Mới Nhất
+                    </h2>
+                    <p class="dash-card-subtitle">Các đơn hàng vừa được khách đặt cần theo dõi và xử lý</p>
+                </div>
+                <a href="{% url 'admin:store_order_changelist' %}" class="dash-card-more-link">
+                    Xem tất cả đơn <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
 
-      </div>
+            {% if admin_stats.recent_orders %}
+            <div class="dash-table-container">
+                <table class="dash-orders-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Mã Đơn</th>
+                            <th>Khách Hàng</th>
+                            <th style="width: 140px;">Tổng Tiền</th>
+                            <th style="width: 130px;">Trạng Thái</th>
+                            <th style="width: 140px;">Thời Gian</th>
+                            <th style="width: 70px; text-align: center;">Xem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in admin_stats.recent_orders %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'admin:store_order_change' order.id %}" class="order-pill-code">
+                                    #{{ order.id }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="customer-block">
+                                    <span class="customer-name">{{ order.full_name|default:order.user.username }}</span>
+                                    <span class="customer-phone">
+                                        <i class="fas fa-phone-alt me-1"></i>{{ order.phone|default:"Chưa có SĐT" }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="order-price-bold">{{ order.total|intcomma }} đ</span>
+                            </td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                    <span class="status-badge-chip badge-st-pending"><i class="fas fa-clock me-1"></i>Chờ xử lý</span>
+                                {% elif order.status == 'confirmed' %}
+                                    <span class="status-badge-chip badge-st-confirmed"><i class="fas fa-check me-1"></i>Đã xác nhận</span>
+                                {% elif order.status == 'processing' %}
+                                    <span class="status-badge-chip badge-st-processing"><i class="fas fa-box me-1"></i>Đang đóng gói</span>
+                                {% elif order.status == 'shipped' %}
+                                    <span class="status-badge-chip badge-st-shipped"><i class="fas fa-truck me-1"></i>Đang giao</span>
+                                {% elif order.status == 'delivered' %}
+                                    <span class="status-badge-chip badge-st-delivered"><i class="fas fa-circle-check me-1"></i>Đã giao</span>
+                                {% elif order.status == 'cancelled' %}
+                                    <span class="status-badge-chip badge-st-cancelled"><i class="fas fa-ban me-1"></i>Đã hủy</span>
+                                {% else %}
+                                    <span class="status-badge-chip badge-st-confirmed">{{ order.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span style="font-size: 0.8rem; color: #64748b;">
+                                    {{ order.created_at|date:"d/m/Y H:i" }}
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'admin:store_order_change' order.id %}" class="btn-order-view" title="Chi tiết đơn hàng">
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding: 32px; text-align: center; color: #94a3b8;">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p>Chưa có đơn hàng nào trong hệ thống.</p>
+            </div>
+            {% endif %}
+        </div>
 
-      <!-- CỘT PHẢI (RIGHT SIDEBAR COLUMN - 30%) -->
-      <div class="dashboard-right-column">
+        <!-- CỘT PHẢI: TRUNG TÂM QUẢN TRỊ DỮ LIỆU (QUICK MANAGEMENT HUB) -->
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <div>
+                    <h2 class="dash-card-title">
+                        <i class="fas fa-grid-2 text-primary"></i> Quản Trị Hệ Thống
+                    </h2>
+                    <p class="dash-card-subtitle">Lối tắt truy cập nhanh các mục dữ liệu</p>
+                </div>
+            </div>
 
-          <!-- 4.3 Lịch Sử Hoạt Động (Recent Actions Feed) -->
-          <div class="unified-card mb-4">
-              <div class="card-header-flex">
-                  <div class="card-title-group">
-                      <div class="title-icon icon-amber"><i class="fas fa-history"></i></div>
-                      <div>
-                          <h3 class="card-title">Hoạt Động Gần Đây</h3>
-                          <p class="card-desc">Nhật ký các thao tác bạn vừa thực hiện</p>
-                      </div>
-                  </div>
-              </div>
+            <!-- Nhóm 1: Bán Hàng & Đơn -->
+            <div class="hub-group-card">
+                <div class="hub-group-title">
+                    <i class="fas fa-receipt text-primary"></i> Quản Lý Bán Hàng
+                </div>
+                <ul class="hub-link-list">
+                    <li>
+                        <a href="{% url 'admin:store_order_changelist' %}" class="hub-item-row">
+                            <span class="hub-item-left">
+                                <i class="fas fa-bag-shopping text-primary"></i> Đơn Hàng
+                            </span>
+                            <span class="hub-count-pill">{{ admin_stats.total_orders|default:0 }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin:store_cartitem_changelist' %}" class="hub-item-row">
+                            <span class="hub-item-left">
+                                <i class="fas fa-cart-shopping text-cyan"></i> Giỏ Hàng Đang Chờ
+                            </span>
+                            <span class="hub-count-pill">{{ admin_stats.active_cart_items|default:0 }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-              <div class="activity-timeline-box">
-                  {% load log %}
-                  {% get_admin_log 8 as admin_log for_user user %}
-                  {% if not admin_log %}
-                      <div class="empty-activity">
-                          <i class="fas fa-inbox mb-2" style="font-size: 2rem; color: #cbd5e1;"></i>
-                          <p class="text-muted small mb-0">Chưa có hoạt động nào được ghi nhận</p>
-                      </div>
-                  {% else %}
-                      <div class="activity-list">
-                          {% for entry in admin_log %}
-                          <div class="activity-item">
-                              <div class="activity-indicator">
-                                  {% if entry.is_addition %}
-                                      <span class="action-icon action-add" title="Thêm mới"><i class="fas fa-plus"></i></span>
-                                  {% elif entry.is_change %}
-                                      <span class="action-icon action-change" title="Chỉnh sửa"><i class="fas fa-pen"></i></span>
-                                  {% elif entry.is_deletion %}
-                                      <span class="action-icon action-delete" title="Xóa"><i class="fas fa-trash"></i></span>
-                                  {% endif %}
-                              </div>
-                              <div class="activity-details">
-                                  <div class="activity-time">{{ entry.action_time|date:"d/m H:i" }}</div>
-                                  <div class="activity-object">
-                                      {% if entry.is_deletion or not entry.get_admin_url %}
-                                          <span class="deleted-text">{{ entry.object_repr }}</span>
-                                      {% else %}
-                                          <a href="{{ entry.get_admin_url }}" class="active-link">{{ entry.object_repr }}</a>
-                                      {% endif %}
-                                  </div>
-                                  {% if entry.content_type %}
-                                      <div class="activity-type">{{ entry.content_type.name }}</div>
-                                  {% endif %}
-                              </div>
-                          </div>
-                          {% endfor %}
-                      </div>
-                  {% endif %}
-              </div>
-          </div>
+            <!-- Nhóm 2: Sản Phẩm & Kho -->
+            <div class="hub-group-card">
+                <div class="hub-group-title">
+                    <i class="fas fa-boxes-stacked text-purple"></i> Sản Phẩm & Danh Mục
+                </div>
+                <ul class="hub-link-list">
+                    <li>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <a href="{% url 'admin:store_product_changelist' %}" class="hub-item-row" style="flex: 1;">
+                                <span class="hub-item-left">
+                                    <i class="fas fa-mobile-screen text-purple"></i> Danh Sách Sản Phẩm
+                                </span>
+                                <span class="hub-count-pill">{{ admin_stats.total_products|default:0 }}</span>
+                            </a>
+                            <a href="{% url 'admin:store_product_add' %}" class="hub-action-plus" title="Thêm sản phẩm">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <li>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <a href="{% url 'admin:store_category_changelist' %}" class="hub-item-row" style="flex: 1;">
+                                <span class="hub-item-left">
+                                    <i class="fas fa-folder-tree text-warning"></i> Danh Mục Sản Phẩm
+                                </span>
+                            </a>
+                            <a href="{% url 'admin:store_category_add' %}" class="hub-action-plus" title="Thêm danh mục">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin:store_color_changelist' %}" class="hub-item-row">
+                            <span class="hub-item-left">
+                                <i class="fas fa-palette text-success"></i> Bảng Màu Sắc
+                            </span>
+                            <i class="fas fa-chevron-right text-muted" style="font-size: 11px;"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin:store_review_changelist' %}" class="hub-item-row">
+                            <span class="hub-item-left">
+                                <i class="fas fa-star text-warning"></i> Đánh Giá Từ Khách
+                            </span>
+                            <i class="fas fa-chevron-right text-muted" style="font-size: 11px;"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-          <!-- 4.4 Thông Tin Trợ Giúp & Tình Trạng Hệ Thống -->
-          <div class="unified-card">
-              <div class="card-header-flex">
-                  <div class="card-title-group">
-                      <div class="title-icon icon-teal"><i class="fas fa-server"></i></div>
-                      <div>
-                          <h3 class="card-title">Thông Tin Hệ Thống</h3>
-                          <p class="card-desc">Tình trạng máy chủ và ứng dụng</p>
-                      </div>
-                  </div>
-              </div>
+            <!-- Nhóm 3: Khách Hàng & Người Dùng -->
+            <div class="hub-group-card">
+                <div class="hub-group-title">
+                    <i class="fas fa-users-gear text-teal"></i> Khách Hàng & Hệ Thống
+                </div>
+                <ul class="hub-link-list">
+                    <li>
+                        <a href="{% url 'admin:auth_user_changelist' %}" class="hub-item-row">
+                            <span class="hub-item-left">
+                                <i class="fas fa-user-lock text-primary"></i> Tài Khoản Người Dùng
+                            </span>
+                            <span class="hub-count-pill">{{ admin_stats.total_customers|default:0 }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin:store_profile_changelist' %}" class="hub-item-row">
+                            <span class="hub-item-left">
+                                <i class="fas fa-id-card text-info"></i> Hồ Sơ Người Dùng
+                            </span>
+                            <i class="fas fa-chevron-right text-muted" style="font-size: 11px;"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-              <div class="sys-info-box">
-                  <div class="sys-row">
-                      <span class="sys-label">Cửa hàng:</span>
-                      <span class="sys-val fw-bold text-primary">An Hoang E-Commerce</span>
-                  </div>
-                  <div class="sys-row">
-                      <span class="sys-label">Nền tảng:</span>
-                      <span class="sys-val">Django 5.1.4 (Python 3.12)</span>
-                  </div>
-                  <div class="sys-row">
-                      <span class="sys-label">Cơ sở dữ liệu:</span>
-                      <span class="sys-val"><i class="fas fa-database text-success me-1"></i> SQLite Database</span>
-                  </div>
-                  <div class="sys-row">
-                      <span class="sys-label">Trạng thái:</span>
-                      <span class="sys-val"><span class="badge-pill bg-success text-white">Sẵn sàng phục vụ</span></span>
-                  </div>
+        </div>
 
-                  <hr style="margin: 14px 0; border-color: #f1f5f9;">
-
-                  <div class="sys-links">
-                      <a href="/" class="sys-quick-link">
-                          <i class="fas fa-globe me-1"></i> Trang chủ website
-                      </a>
-                      <a href="/products/" class="sys-quick-link">
-                          <i class="fas fa-bag-shopping me-1"></i> Danh sách sản phẩm
-                      </a>
-                      <a href="/cart/" class="sys-quick-link">
-                          <i class="fas fa-cart-shopping me-1"></i> Xem giỏ hàng khách
-                      </a>
-                  </div>
-              </div>
-          </div>
-
-      </div>
-
-  </div>
+    </div>
 
 </div>
 {% endblock %}

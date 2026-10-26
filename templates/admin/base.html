@@ -1,0 +1,965 @@
+{% load i18n static %}<!DOCTYPE html>
+<html lang="vi" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | An Hoang Quản Trị{% endblock %}</title>
+
+<!-- Fonts & Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Base CSS -->
+<link rel="stylesheet" href="{% static "admin/css/base.css" %}">
+<link rel="stylesheet" href="{% static "admin/css/modern_admin.css" %}?v=3.0">
+{% block extrastyle %}{% endblock %}
+{% block extrahead %}{% endblock %}
+
+<style>
+/* ==========================================================================
+   RESET & CORE ADMIN STYLING
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box !important;
+}
+
+html, body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 13.5px;
+  line-height: 1.5;
+  width: 100% !important;
+  overflow-x: hidden !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Xóa bỏ bullet point mặc định cho các thanh điều hướng và công cụ */
+.hub-link-list, .hub-link-list li, 
+.object-tools, .object-tools li, 
+.messagelist, .messagelist li, 
+.top-nav-container, 
+.breadcrumbs ul, .breadcrumbs li, 
+#user-tools ul, #user-tools li {
+  list-style: none !important;
+  list-style-type: none !important;
+}
+
+/* 1. MAIN HEADER */
+#header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%) !important;
+  color: #ffffff !important;
+  padding: 10px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: nowrap !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  width: 100% !important;
+}
+
+#branding {
+  display: flex;
+  align-items: center;
+}
+
+#branding h1, #site-name, #site-name a {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  letter-spacing: -0.01em;
+}
+
+.brand-icon-square {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+}
+
+.brand-sub-title {
+  font-weight: 400;
+  opacity: 0.75;
+  font-size: 0.85rem;
+}
+
+#user-tools {
+  font-size: 13px !important;
+  color: #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.user-info-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 12.5px;
+}
+
+.user-badge-tag {
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.btn-nav-store {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #10b981 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 12.5px;
+  text-decoration: none !important;
+  transition: all 0.15s;
+}
+.btn-nav-store:hover { background: #059669 !important; }
+
+.btn-nav-pw {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1 !important;
+  font-weight: 600;
+  font-size: 12.5px;
+  text-decoration: none !important;
+  transition: all 0.15s;
+}
+.btn-nav-pw:hover { background: rgba(255, 255, 255, 0.18); color: #ffffff !important; }
+
+.btn-nav-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 12.5px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-nav-logout:hover { background: #dc2626 !important; }
+
+/* 2. TOP STICKY HORIZONTAL NAVBAR */
+.admin-top-navbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  width: 100%;
+}
+.top-nav-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.top-nav-container::-webkit-scrollbar { display: none; }
+
+.top-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569 !important;
+  text-decoration: none !important;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+.top-nav-link i { font-size: 14px; color: #64748b; }
+.top-nav-link:hover {
+  background: #f1f5f9;
+  color: #0f172a !important;
+}
+.top-nav-link:hover i { color: #4f46e5; }
+.top-nav-link.active {
+  background: #eef2ff !important;
+  color: #4338ca !important;
+  border-color: #c7d2fe !important;
+  font-weight: 700;
+}
+.top-nav-link.active i { color: #4f46e5 !important; }
+
+/* 3. CONTENT AREA & BREADCRUMBS */
+#content {
+  width: 100% !important;
+  max-width: 1440px !important;
+  margin: 0 auto !important;
+  padding: 16px 20px 48px !important;
+  box-sizing: border-box !important;
+}
+
+.breadcrumbs {
+  background: transparent !important;
+  padding: 8px 0 16px !important;
+  font-size: 13px !important;
+  color: #64748b !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+}
+.breadcrumbs a {
+  color: #4f46e5 !important;
+  text-decoration: none !important;
+  font-weight: 600;
+}
+.breadcrumbs a:hover { text-decoration: underline !important; }
+
+/* 4. TẮT HOÀN TOÀN NAV-SIDEBAR CỒNG KỀNH */
+#nav-sidebar, .nav-sidebar, [data-sidebar-toggle] {
+  display: none !important;
+}
+.main {
+  display: block !important;
+  width: 100% !important;
+}
+main.content {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 5. TỐI ƯU TRANG DANH SÁCH (CHANGELIST) */
+#changelist {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  gap: 16px !important;
+}
+
+#changelist.filtered .changelist-form-container,
+.changelist-form-container {
+  margin-right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+#changelist-filter,
+.cl-horizontal-filters {
+  position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 12px 18px !important;
+  margin: 0 0 16px 0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+#changelist-filter h2,
+#changelist-filter-header {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  margin: 0 6px 0 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+#changelist-filter details {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 5px 12px !important;
+  margin: 0 !important;
+  position: relative;
+}
+
+#changelist-filter summary {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  cursor: pointer;
+  outline: none;
+}
+
+#changelist-filter ul {
+  list-style: none !important;
+  margin: 6px 0 0 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+}
+
+#changelist-filter li a {
+  font-size: 12px !important;
+  padding: 3px 9px !important;
+  border-radius: 6px !important;
+  color: #475569 !important;
+  text-decoration: none !important;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  display: inline-block;
+  transition: all 0.15s;
+}
+
+#changelist-filter li a:hover {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+  border-color: #a5b4fc !important;
+}
+
+#changelist-filter li.selected a {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-color: #4f46e5 !important;
+  font-weight: 700;
+}
+
+#changelist-filter-extra-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+#changelist-filter-extra-actions h3 {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+#changelist-filter-extra-actions a {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #ef4444 !important;
+  text-decoration: none !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  background: #fee2e2 !important;
+}
+
+/* Bảng dữ liệu chính */
+#changelist-form {
+  width: 100% !important;
+}
+#changelist-form .results {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+  overflow-x: auto !important;
+  width: 100% !important;
+}
+
+#changelist table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 0 !important;
+  table-layout: auto !important;
+}
+
+#changelist table thead th {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  padding: 12px 14px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+#changelist table tbody td {
+  padding: 12px 14px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  vertical-align: middle !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+}
+
+#changelist table tbody tr:hover td {
+  background: #f8fafc !important;
+}
+
+#changelist table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Thanh tìm kiếm Toolbar */
+#toolbar {
+  background: transparent !important;
+  border: none !important;
+  margin: 0 0 14px 0 !important;
+  padding: 0 !important;
+}
+
+#changelist-search {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+#changelist-search input[type="text"] {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 8px 14px !important;
+  font-size: 13.5px !important;
+  width: 320px !important;
+  background: #ffffff !important;
+  outline: none !important;
+}
+
+#changelist-search input[type="text"]:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+}
+
+#changelist-search input[type="submit"] {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 18px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#changelist-search input[type="submit"]:hover {
+  background: #4338ca !important;
+}
+
+/* Hành động hàng loạt (Actions bar) */
+.actions {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 10px 18px !important;
+  margin: 0 0 16px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 13.5px !important;
+  flex-wrap: wrap !important;
+}
+
+.actions label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  font-size: 13.5px !important;
+  margin: 0 !important;
+}
+
+.actions select {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  line-height: normal !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 0 36px 0 14px !important;
+  font-size: 13.5px !important;
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  color: #1e293b !important;
+  background-color: #ffffff !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  vertical-align: middle !important;
+  display: inline-block !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+.actions select:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+}
+
+.actions select option {
+  padding: 10px 14px !important;
+  font-size: 13.5px !important;
+  color: #1e293b !important;
+  background: #ffffff !important;
+}
+
+.actions button.button {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 22px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25) !important;
+  transition: all 0.2s ease !important;
+}
+
+.actions button.button:hover {
+  background: #4338ca !important;
+  transform: translateY(-1px) !important;
+}
+
+.actions span.action-counter {
+  color: #64748b !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  margin-left: 6px !important;
+}
+
+/* Object tools */
+.object-tools {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 0 16px 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+.object-tools li {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+.object-tools a {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  text-decoration: none !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25) !important;
+  transition: all 0.15s !important;
+}
+.object-tools a:hover {
+  background: #4338ca !important;
+  transform: translateY(-1px);
+}
+
+/* Badge & Nút thao tác */
+.order-id-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 700;
+  font-size: 12.5px;
+  text-decoration: none;
+}
+.order-id-badge:hover { background: #e0e7ff; }
+
+.clean-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-pending { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.badge-confirmed { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.badge-processing { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+.badge-shipped { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.badge-delivered { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+.badge-cancelled { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+.badge-cod { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; }
+.badge-bank { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.badge-momo { background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; }
+.badge-zalopay { background: #ecfeff; color: #0891b2; border: 1px solid #a5f3fc; }
+.badge-vnpay { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
+.badge-payment-method { background: #f1f5f9; color: #475569; }
+
+.row-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+  text-decoration: none;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+.row-btn:hover { background: #4f46e5; color: #ffffff; }
+.btn-danger-soft { color: #ef4444; background: #fee2e2; }
+.btn-danger-soft:hover { background: #dc2626; color: #ffffff; }
+
+/* 6. FORM & FIELDSET STYLES (CHANGE / ADD / PASSWORD CHANGE PAGES) */
+fieldset.module {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 20px 24px !important;
+  margin-bottom: 24px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+fieldset.module h2 {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding-bottom: 12px !important;
+  margin-bottom: 16px !important;
+  background: transparent !important;
+}
+fieldset.module .description {
+  font-size: 0.88rem !important;
+  color: #64748b !important;
+  margin-bottom: 16px !important;
+}
+.form-row {
+  padding: 12px 0 !important;
+  border-bottom: 1px solid #f8fafc !important;
+}
+.form-row:last-child {
+  border-bottom: none !important;
+}
+.form-row label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+}
+input[type="text"], input[type="password"], input[type="email"], input[type="url"],
+input[type="number"], input[type="tel"], textarea {
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  outline: none !important;
+  transition: all 0.15s ease !important;
+  max-width: 100% !important;
+}
+
+select:not([multiple]) {
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  line-height: normal !important;
+  padding: 0 36px 0 14px !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  outline: none !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  vertical-align: middle !important;
+  display: inline-block !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 16px !important;
+}
+
+select:not([multiple]) option {
+  padding: 10px 14px !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus,
+input[type="number"]:focus, textarea:focus, select:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+}
+.help {
+  font-size: 12px !important;
+  color: #64748b !important;
+  margin-top: 4px !important;
+}
+
+/* Submit row bar */
+.submit-row {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 14px 20px !important;
+  margin: 24px 0 !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+}
+.submit-row input[type="submit"].default {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 9px 20px !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25) !important;
+  transition: all 0.15s !important;
+}
+.submit-row input[type="submit"].default:hover {
+  background: #4338ca !important;
+}
+.submit-row input[type="submit"] {
+  background: #f8fafc !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 9px 16px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+}
+.submit-row input[type="submit"]:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+.submit-row .deletelink {
+  margin-right: auto !important;
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca !important;
+  border-radius: 8px !important;
+  padding: 9px 16px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.submit-row .deletelink:hover {
+  background: #fca5a5 !important;
+}
+
+/* Inlines (Tabular Inline) */
+.inline-group {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 20px !important;
+  margin-bottom: 24px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+.inline-group h2 {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding-bottom: 10px !important;
+  margin-bottom: 16px !important;
+  background: transparent !important;
+}
+.inline-group table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+.inline-group th {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 10px 14px !important;
+  text-align: left !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+.inline-group td {
+  padding: 10px 14px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  vertical-align: middle !important;
+}
+
+/* Tắt hierarchy rườm rà */
+.xfull { display: none !important; }
+</style>
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+<div id="container">
+
+    {% if not is_popup %}
+    <!-- 1. Header Chính Cố Định -->
+    <header id="header">
+        <div id="branding">
+            <h1 id="site-name">
+                <a href="{% url 'admin:index' %}">
+                    <span class="brand-icon-square"><i class="fas fa-shield-halved"></i></span>
+                    An Hoang <span class="brand-sub-title">| Quản Trị Hệ Thống</span>
+                </a>
+            </h1>
+        </div>
+
+        {% if has_permission %}
+        <div id="user-tools">
+            <span class="user-info-chip">
+                <i class="fas fa-circle-user text-primary"></i>
+                {{ user.get_full_name|default:user.username }}
+                {% if user.is_superuser %}<span class="user-badge-tag">Admin</span>{% endif %}
+            </span>
+            <a href="/" target="_blank" class="btn-nav-store">
+                <i class="fas fa-store"></i> Xem Cửa Hàng
+            </a>
+            <a href="{% url 'admin:password_change' %}" class="btn-nav-pw">
+                <i class="fas fa-key"></i> Đổi Mật Khẩu
+            </a>
+            <form id="logout-form" method="post" action="{% url 'admin:logout' %}" style="display:inline; margin:0;">
+                {% csrf_token %}
+                <button type="submit" class="btn-nav-logout">
+                    <i class="fas fa-arrow-right-from-bracket"></i> Đăng Xuất
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </header>
+
+    {% if user.is_authenticated and has_permission %}
+    <!-- 2. Thanh Điều Hướng Ngang (Sticky Tab Bar) - Hiển Thị Trên Mọi Trang Cho Người Dùng Đã Đăng Nhập -->
+    <nav class="admin-top-navbar">
+        <div class="top-nav-container">
+            <a href="{% url 'admin:index' %}" class="top-nav-link {% if request.path == '/admin/' or request.path == '/admin' %}active{% endif %}">
+                <i class="fas fa-chart-pie"></i> Bảng Điều Khiển
+            </a>
+            <a href="{% url 'admin:store_order_changelist' %}" class="top-nav-link {% if '/admin/store/order/' in request.path %}active{% endif %}">
+                <i class="fas fa-bag-shopping"></i> Quản Lý Đơn Hàng
+            </a>
+            <a href="{% url 'admin:store_product_changelist' %}" class="top-nav-link {% if '/admin/store/product/' in request.path %}active{% endif %}">
+                <i class="fas fa-mobile-screen"></i> Sản Phẩm
+            </a>
+            <a href="{% url 'admin:store_category_changelist' %}" class="top-nav-link {% if '/admin/store/category/' in request.path %}active{% endif %}">
+                <i class="fas fa-folder-tree"></i> Danh Mục
+            </a>
+            <a href="{% url 'admin:auth_user_changelist' %}" class="top-nav-link {% if '/admin/auth/user/' in request.path %}active{% endif %}">
+                <i class="fas fa-users"></i> Khách Hàng
+            </a>
+            <a href="{% url 'admin:store_review_changelist' %}" class="top-nav-link {% if '/admin/store/review/' in request.path %}active{% endif %}">
+                <i class="fas fa-star"></i> Đánh Giá
+            </a>
+            <a href="{% url 'admin:store_cartitem_changelist' %}" class="top-nav-link {% if '/admin/store/cartitem/' in request.path %}active{% endif %}">
+                <i class="fas fa-cart-shopping"></i> Giỏ Hàng
+            </a>
+            <a href="{% url 'admin:store_color_changelist' %}" class="top-nav-link {% if '/admin/store/color/' in request.path %}active{% endif %}">
+                <i class="fas fa-palette"></i> Màu Sắc
+            </a>
+        </div>
+    </nav>
+    {% endif %}
+    {% endif %}
+
+    <!-- 3. Khu Vực Nội Dung Chính -->
+    <div class="main" id="main">
+      <main id="content-start" class="content" tabindex="-1">
+        {% block messages %}
+          {% if messages %}
+            <ul class="messagelist" style="margin: 12px 20px 0; list-style:none; padding:0;">{% for message in messages %}
+              <li style="padding: 10px 16px; border-radius: 8px; margin-bottom: 8px; font-weight: 600; font-size: 13px; background: {% if message.tags == 'error' %}#fef2f2; color:#b91c1c; border:1px solid #fecaca;{% else %}#ecfdf5; color:#047857; border:1px solid #a7f3d0;{% endif %}">
+                {{ message|capfirst }}
+              </li>
+            {% endfor %}</ul>
+          {% endif %}
+        {% endblock messages %}
+
+        <div id="content" class="{% block coltype %}colM{% endblock %}">
+          {% block breadcrumbs %}{% endblock %}
+          {% block pretitle %}{% endblock %}
+          {% block content_title %}{% endblock %}
+          {% block content_subtitle %}{% endblock %}
+          {% block content %}
+            {% block object-tools %}{% endblock %}
+            {{ content }}
+          {% endblock %}
+          {% block sidebar %}{% endblock %}
+        </div>
+      </main>
+    </div>
+
+</div>
+</body>
+</html>

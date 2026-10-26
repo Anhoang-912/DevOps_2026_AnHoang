@@ -1,0 +1,1051 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify humanize store_tags %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static "admin/css/forms.css" %}">
+<style>
+/* ==========================================================================
+   PIXEL-PERFECT, MODERN ORDER DASHBOARD (SYNCHRONIZED LUXURY BUTTONS)
+   ========================================================================== */
+.order-dashboard-wrapper {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto 50px;
+  box-sizing: border-box;
+  padding: 0 10px;
+}
+
+/* 1. Header Banner */
+.order-header-banner {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+.order-header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.order-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 22px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+  flex-shrink: 0;
+}
+.order-title-block h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.order-meta-chips {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+.order-meta-chip {
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Synchronized Header Action Buttons */
+.order-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn-order-ext,
+.btn-order-print,
+.order-header-actions .object-tools a,
+.order-header-actions .historylink {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+.btn-order-ext:hover,
+.btn-order-print:hover,
+.order-header-actions .object-tools a:hover,
+.order-header-actions .historylink:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* 2. Main 2-Column Grid (NO HORIZONTAL OVERFLOW) */
+.order-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 370px;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 1080px) {
+  .order-dashboard-grid {
+    grid-template-columns: 100%;
+  }
+}
+
+/* 3. Left Content Column */
+.order-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.order-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+.order-card-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 18px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.order-card-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.order-card-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+/* Items Table */
+.order-items-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.order-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13.5px;
+}
+.order-items-table thead {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+.order-items-table th {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.order-items-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  color: #1e293b;
+}
+.order-items-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.order-items-table tbody tr:hover {
+  background: #fbfcfe;
+}
+.order-item-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  display: block;
+  background: #f8fafc;
+}
+.order-item-title {
+  font-weight: 700;
+  color: #0f172a;
+  text-decoration: none;
+  font-size: 13.5px;
+  line-height: 1.4;
+  display: inline-block;
+  transition: color 0.15s ease;
+}
+.order-item-title:hover {
+  color: #4f46e5;
+}
+.order-item-meta {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+}
+.order-qty-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.order-item-price {
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+.order-item-subtotal {
+  font-weight: 800;
+  color: #dc2626;
+  white-space: nowrap;
+  font-size: 14.5px;
+}
+
+/* Order Totals Summary Footer */
+.order-summary-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.order-summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: #64748b;
+}
+.order-summary-line.total-line {
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.order-summary-line.total-line .total-amount {
+  color: #ef4444;
+  font-size: 1.35rem;
+}
+
+/* Form Field Groups (Clean Responsive Grids) */
+.order-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.order-form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 768px) {
+  .order-form-grid-2,
+  .order-form-grid-3 {
+    grid-template-columns: 100%;
+  }
+}
+
+.order-field-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.order-field-box label {
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+.order-field-box .required-mark {
+  color: #ef4444;
+  font-weight: 700;
+}
+.order-field-box input[type="text"],
+.order-field-box input[type="number"] {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 9px 12px !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+  transition: all 0.15s ease !important;
+}
+
+.order-field-box select {
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  line-height: normal !important;
+  box-sizing: border-box !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 0 36px 0 14px !important;
+  font-size: 13.5px !important;
+  font-family: inherit !important;
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 16px !important;
+  transition: all 0.15s ease !important;
+}
+
+.order-field-box select option {
+  padding: 10px 14px !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+.order-field-box textarea {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 9px 12px !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+  min-height: 76px !important;
+  height: 76px !important;
+  resize: vertical !important;
+  line-height: 1.5 !important;
+  transition: all 0.15s ease !important;
+}
+.order-field-box input[type="text"]:focus,
+.order-field-box input[type="number"]:focus,
+.order-field-box select:focus,
+.order-field-box textarea:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+  outline: none !important;
+}
+.order-field-box .related-widget-wrapper {
+  display: block !important;
+  width: 100% !important;
+}
+.order-field-box .related-widget-wrapper select {
+  width: 100% !important;
+}
+.order-field-box .related-widget-wrapper-link {
+  display: none !important;
+}
+
+/* 4. Right Sticky Sidebar */
+.order-side-col {
+  position: sticky;
+  top: 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.order-side-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  box-sizing: border-box;
+}
+
+/* Big Highlighted Total (Fintech Card) */
+.order-total-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.25);
+}
+.order-total-hero-label {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a5b4fc;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.order-total-hero-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+/* Synchronized 1-Click Status Quick Actions */
+.quick-status-wrap {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+.quick-status-head {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.quick-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.btn-qs {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 12px !important;
+  border-radius: 9px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  color: #334155 !important;
+  transition: all 0.15s ease !important;
+  outline: none !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+}
+.btn-qs:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.07) !important;
+}
+.btn-qs.is-active {
+  background: #0f172a !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22) !important;
+}
+.btn-qs .qs-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.btn-qs .dot-confirmed  { background: #3b82f6; box-shadow: 0 0 6px rgba(59, 130, 246, 0.6); }
+.btn-qs .dot-processing { background: #8b5cf6; box-shadow: 0 0 6px rgba(139, 92, 246, 0.6); }
+.btn-qs .dot-shipped    { background: #0ea5e9; box-shadow: 0 0 6px rgba(14, 165, 233, 0.6); }
+.btn-qs .dot-delivered  { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+.btn-qs .dot-pending    { background: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.6); }
+.btn-qs .dot-cancelled  { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
+.btn-qs .qs-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-qs .qs-check {
+  font-size: 11px;
+  color: #10b981;
+}
+
+/* Sidebar Submit Row Buttons */
+.order-side-card .submit-row {
+  margin: 18px 0 0 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  position: static !important;
+}
+.order-side-card .submit-row input[type="submit"].default {
+  width: 100% !important;
+  padding: 12px 18px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3) !important;
+  transition: all 0.15s ease !important;
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+}
+.order-side-card .submit-row input[type="submit"].default:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4) !important;
+}
+.order-side-card .submit-row input[type="submit"] {
+  width: 100% !important;
+  padding: 10px 16px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  text-transform: none !important;
+}
+.order-side-card .submit-row input[type="submit"]:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+.order-side-card .submit-row .deletelink {
+  width: 100% !important;
+  justify-content: center !important;
+  padding: 9px 16px !important;
+  border-radius: 9px !important;
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1.5px solid #fecaca !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease !important;
+}
+.order-side-card .submit-row .deletelink:hover {
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+}
+
+/* Status Badges */
+.badge-clean {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge-pending    { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-confirmed  { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+.badge-processing { background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe; }
+.badge-shipped    { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.badge-delivered  { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.badge-cancelled  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+@media print {
+  #header, .admin-top-navbar, .breadcrumbs, .order-side-col, .order-header-actions, .submit-row {
+    display: none !important;
+  }
+  .order-dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}"><i class="fas fa-chart-pie me-1"></i> Bảng điều khiển</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; <span style="color:#0f172a; font-weight:700;">Đơn Hàng #{{ original.id|default:"Mới" }}</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="order-dashboard-wrapper">
+
+  {% if change and original %}
+  <!-- 1. HEADER BANNER THÔNG TIN ĐƠN HÀNG -->
+  <div class="order-header-banner">
+    <div class="order-header-info">
+      <div class="order-icon-badge">
+        <i class="fas fa-bag-shopping"></i>
+      </div>
+      <div class="order-title-block">
+        <h1>
+          Đơn Hàng #{{ original.id }}
+          {% if original.status == 'pending' %}
+            <span class="badge-clean badge-pending"><i class="fas fa-clock"></i> Chờ xử lý</span>
+          {% elif original.status == 'confirmed' %}
+            <span class="badge-clean badge-confirmed"><i class="fas fa-check"></i> Đã xác nhận</span>
+          {% elif original.status == 'processing' %}
+            <span class="badge-clean badge-processing"><i class="fas fa-box"></i> Đang đóng gói</span>
+          {% elif original.status == 'shipped' %}
+            <span class="badge-clean badge-shipped"><i class="fas fa-truck"></i> Đang giao hàng</span>
+          {% elif original.status == 'delivered' %}
+            <span class="badge-clean badge-delivered"><i class="fas fa-circle-check"></i> Đã giao thành công</span>
+          {% elif original.status == 'cancelled' %}
+            <span class="badge-clean badge-cancelled"><i class="fas fa-ban"></i> Đã hủy</span>
+          {% endif %}
+        </h1>
+        <div class="order-meta-chips">
+          <span class="order-meta-chip">
+            <i class="fas fa-calendar-days text-muted"></i> {{ original.created_at|date:"d/m/Y H:i" }}
+          </span>
+          <span class="order-meta-chip">
+            <i class="fas fa-user text-muted"></i> {{ original.full_name|default:original.user.username }}
+          </span>
+          <span class="order-meta-chip">
+            <i class="fas fa-credit-card text-muted"></i> {{ original.get_payment_method_display }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-header-actions">
+      <a href="/order/{{ original.id }}/" target="_blank" class="btn-order-ext">
+        <i class="fas fa-receipt text-primary"></i> Xem Hóa Đơn Web
+      </a>
+      <button type="button" class="btn-order-print" onclick="window.print()">
+        <i class="fas fa-print"></i> In Phiếu Giao
+      </button>
+      {% block object-tools %}
+        {% if change and not is_popup %}
+          <ul class="object-tools" style="margin:0; padding:0; display:flex; gap:8px; list-style:none;">
+            {% block object-tools-items %}
+              {% change_form_object_tools %}
+            {% endblock %}
+          </ul>
+        {% endif %}
+      {% endblock %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 2. FORM QUẢN TRỊ 2 CỘT -->
+  <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}
+    <div>
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+      {% if errors %}
+        <div class="errornote" style="padding:14px 18px; border-radius:10px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; margin-bottom:20px; font-weight:600; display:flex; align-items:center; gap:8px;">
+          <i class="fas fa-circle-exclamation text-danger" style="font-size:18px;"></i>
+          <div>Vui lòng kiểm tra lại thông tin, có một số trường dữ liệu chưa hợp lệ.</div>
+        </div>
+        {{ adminform.form.non_field_errors }}
+      {% endif %}
+
+      <!-- Hidden formsets so Django can validate and save order items -->
+      <div style="display:none;" aria-hidden="true">
+        {% for inline_admin_formset in inline_admin_formsets %}
+          {{ inline_admin_formset.formset.management_form }}
+          {% for form in inline_admin_formset.formset %}
+            {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+          {% endfor %}
+        {% endfor %}
+      </div>
+
+      <div class="order-dashboard-grid">
+
+        <!-- ============================================================== -->
+        <!-- CỘT TRÁI: DANH SÁCH MẶT HÀNG & THÔNG TIN GIAO HÀNG (MINMAX 1FR)  -->
+        <!-- ============================================================== -->
+        <div class="order-main-col">
+
+          <!-- Card 1: Danh sách sản phẩm mua trong đơn -->
+          <div class="order-card">
+            <div class="order-card-title">
+              <div class="order-card-title-left">
+                <i class="fas fa-boxes-stacked text-primary"></i>
+                <span>Chi Tiết Mặt Hàng Đặt Mua</span>
+              </div>
+              <span class="order-card-badge">{{ original.items.count|default:"0" }} sản phẩm</span>
+            </div>
+
+            <div class="order-items-table-wrap">
+              <table class="order-items-table">
+                <thead>
+                  <tr>
+                    <th style="width: 70px; text-align:center;">Ảnh</th>
+                    <th>Sản Phẩm</th>
+                    <th style="width: 110px; text-align:center;">Số Lượng</th>
+                    <th style="width: 140px; text-align:right;">Đơn Giá</th>
+                    <th style="width: 150px; text-align:right;">Thành Tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in original.items.all %}
+                    <tr>
+                      <td style="text-align:center;">
+                        {% if item.product and item.product.image %}
+                          <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="order-item-thumb">
+                        {% else %}
+                          <div class="order-item-thumb" style="display:flex; align-items:center; justify-content:center; color:#94a3b8;">
+                            <i class="fas fa-image"></i>
+                          </div>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <a href="{% url 'admin:store_product_change' item.product.id %}" target="_blank" class="order-item-title">
+                          {{ item.product.name }}
+                        </a>
+                        <div class="order-item-meta">
+                          Mã SP: #{{ item.product.id }} 
+                          {% if item.product.category %} | Danh mục: {{ item.product.category.name }}{% endif %}
+                        </div>
+                      </td>
+                      <td style="text-align:center;">
+                        <span class="order-qty-pill">x {{ item.quantity }}</span>
+                      </td>
+                      <td style="text-align:right;" class="order-item-price">
+                        {{ item.price|format_vnd }}
+                      </td>
+                      <td style="text-align:right;" class="order-item-subtotal">
+                        {{ item.subtotal|format_vnd }}
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="5" style="text-align:center; padding: 24px; color:#64748b;">
+                        Chưa có mặt hàng nào trong đơn này.
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tóm tắt chi phí đơn hàng -->
+            <div class="order-summary-box">
+              <div class="order-summary-line">
+                <span>Tạm tính tiền hàng:</span>
+                <strong style="color:#0f172a;">{{ original.total|format_vnd }}</strong>
+              </div>
+              <div class="order-summary-line">
+                <span>Phí vận chuyển:</span>
+                <span style="color:#10b981; font-weight:700;">Miễn phí (0 ₫)</span>
+              </div>
+              <div class="order-summary-line total-line">
+                <span>Tổng giá trị đơn:</span>
+                <span class="total-amount">{{ original.total|format_vnd }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Thông tin người nhận & Địa chỉ giao hàng -->
+          <div class="order-card">
+            <div class="order-card-title">
+              <div class="order-card-title-left">
+                <i class="fas fa-location-dot text-primary"></i>
+                <span>Thông Tin Người Nhận & Địa Chỉ Giao Hàng</span>
+              </div>
+            </div>
+
+            <!-- Hàng 1: Tài khoản & Họ tên -->
+            <div class="order-form-grid-2">
+              <div class="order-field-box">
+                <label for="id_user">Tài khoản khách hàng: <span class="required-mark">*</span></label>
+                {{ adminform.form.user }}
+                {% if adminform.form.user.errors %}
+                  <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.user.errors|striptags }}</div>
+                {% endif %}
+              </div>
+              <div class="order-field-box">
+                <label for="id_full_name">Họ tên người nhận: <span class="required-mark">*</span></label>
+                {{ adminform.form.full_name }}
+                {% if adminform.form.full_name.errors %}
+                  <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.full_name.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Hàng 2: Số điện thoại & Địa chỉ cụ thể -->
+            <div class="order-form-grid-2">
+              <div class="order-field-box">
+                <label for="id_phone">Số điện thoại: <span class="required-mark">*</span></label>
+                {{ adminform.form.phone }}
+                {% if adminform.form.phone.errors %}
+                  <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.phone.errors|striptags }}</div>
+                {% endif %}
+              </div>
+              <div class="order-field-box">
+                <label for="id_address">Địa chỉ chi tiết (Số nhà, tên đường): <span class="required-mark">*</span></label>
+                {{ adminform.form.address }}
+                {% if adminform.form.address.errors %}
+                  <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.address.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Hàng 3: Tỉnh / Quận / Phường -->
+            <div class="order-form-grid-3">
+              <div class="order-field-box">
+                <label for="id_province">Tỉnh / Thành phố:</label>
+                {{ adminform.form.province }}
+                {% if adminform.form.province.errors %}
+                  <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.province.errors|striptags }}</div>
+                {% endif %}
+              </div>
+              <div class="order-field-box">
+                <label for="id_district">Quận / Huyện:</label>
+                {{ adminform.form.district }}
+                {% if adminform.form.district.errors %}
+                  <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.district.errors|striptags }}</div>
+                {% endif %}
+              </div>
+              <div class="order-field-box">
+                <label for="id_ward">Phường / Xã:</label>
+                {{ adminform.form.ward }}
+                {% if adminform.form.ward.errors %}
+                  <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.ward.errors|striptags }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Hàng 4: Ghi chú đơn hàng -->
+            <div class="order-field-box" style="margin-top: 10px;">
+              <label for="id_note">Ghi chú giao hàng:</label>
+              {{ adminform.form.note }}
+              {% if adminform.form.note.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.note.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+          </div>
+
+          <!-- Card 3: Nhật ký thời gian -->
+          {% if change and original %}
+          <div class="order-card" style="background:#f8fafc; padding:18px 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; font-size:13px; color:#64748b;">
+              <div><i class="fas fa-calendar-plus text-muted me-1"></i> Ngày đặt: <strong style="color:#0f172a;">{{ original.created_at|date:"d/m/Y H:i:s" }}</strong></div>
+              <div><i class="fas fa-arrows-rotate text-muted me-1"></i> Cập nhật cuối: <strong style="color:#0f172a;">{{ original.updated_at|date:"d/m/Y H:i:s" }}</strong></div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- CỘT PHẢI (STICKY 370PX): TỔNG TIỀN, TRẠNG THÁI & NÚT LƯU          -->
+        <!-- ============================================================== -->
+        <div class="order-side-col">
+
+          <div class="order-side-card">
+
+            <!-- Thẻ Tổng Tiền Nổi Bật (Fintech Dark Slate Gradient) -->
+            <div class="order-total-hero">
+              <div class="order-total-hero-label">Tổng Giá Trị Đơn Hàng</div>
+              <div class="order-total-hero-value">{{ original.total|format_vnd }}</div>
+            </div>
+
+            <!-- Field: Tổng Tiền (Editable) -->
+            <div class="order-field-box" style="margin-bottom:14px;">
+              <label for="id_total">Tổng tiền đơn (VNĐ): <span class="required-mark">*</span></label>
+              {{ adminform.form.total }}
+              {% if adminform.form.total.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.total.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Field: Phương Thức Thanh Toán -->
+            <div class="order-field-box" style="margin-bottom:14px;">
+              <label for="id_payment_method">Phương thức thanh toán: <span class="required-mark">*</span></label>
+              {{ adminform.form.payment_method }}
+              {% if adminform.form.payment_method.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.payment_method.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Field: Trạng Thái Đơn Hàng -->
+            <div class="order-field-box" style="margin-bottom:16px;">
+              <label for="id_status">Trạng thái đơn hàng: <span class="required-mark">*</span></label>
+              {{ adminform.form.status }}
+              {% if adminform.form.status.errors %}
+                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.status.errors|striptags }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Nút Thao Tác 1-Chạm Đồng Bộ (Synchronized Status Buttons) -->
+            <div class="quick-status-wrap">
+              <div class="quick-status-head">
+                <i class="fas fa-bolt text-warning"></i> Chuyển Nhanh 1-Chạm:
+              </div>
+              <div class="quick-status-grid">
+                <button type="button" class="btn-qs {% if original.status == 'confirmed' %}is-active{% endif %}" onclick="quickSetStatusAndSave('confirmed')">
+                  <span class="qs-dot dot-confirmed"></span>
+                  <span class="qs-text">Xác nhận</span>
+                  {% if original.status == 'confirmed' %}<i class="fas fa-check qs-check"></i>{% endif %}
+                </button>
+                <button type="button" class="btn-qs {% if original.status == 'processing' %}is-active{% endif %}" onclick="quickSetStatusAndSave('processing')">
+                  <span class="qs-dot dot-processing"></span>
+                  <span class="qs-text">Đóng gói</span>
+                  {% if original.status == 'processing' %}<i class="fas fa-check qs-check"></i>{% endif %}
+                </button>
+                <button type="button" class="btn-qs {% if original.status == 'shipped' %}is-active{% endif %}" onclick="quickSetStatusAndSave('shipped')">
+                  <span class="qs-dot dot-shipped"></span>
+                  <span class="qs-text">Giao hàng</span>
+                  {% if original.status == 'shipped' %}<i class="fas fa-check qs-check"></i>{% endif %}
+                </button>
+                <button type="button" class="btn-qs {% if original.status == 'delivered' %}is-active{% endif %}" onclick="quickSetStatusAndSave('delivered')">
+                  <span class="qs-dot dot-delivered"></span>
+                  <span class="qs-text">Đã giao</span>
+                  {% if original.status == 'delivered' %}<i class="fas fa-check qs-check"></i>{% endif %}
+                </button>
+                <button type="button" class="btn-qs {% if original.status == 'pending' %}is-active{% endif %}" onclick="quickSetStatusAndSave('pending')">
+                  <span class="qs-dot dot-pending"></span>
+                  <span class="qs-text">Chờ xử lý</span>
+                  {% if original.status == 'pending' %}<i class="fas fa-check qs-check"></i>{% endif %}
+                </button>
+                <button type="button" class="btn-qs {% if original.status == 'cancelled' %}is-active{% endif %}" onclick="quickSetStatusAndSave('cancelled')">
+                  <span class="qs-dot dot-cancelled"></span>
+                  <span class="qs-text">Hủy đơn</span>
+                  {% if original.status == 'cancelled' %}<i class="fas fa-check qs-check"></i>{% endif %}
+                </button>
+              </div>
+            </div>
+
+            <!-- Nút Lưu Thay Đổi (Clean Button Hierarchy) -->
+            <div class="submit-row">
+              <input type="submit" value="💾 Lưu Thay Đổi" class="default" name="_save">
+              <input type="submit" value="Lưu và tiếp tục sửa" name="_continue">
+              {% if show_delete_link and original %}
+                {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+                <a href="{% add_preserved_filters delete_url %}" class="deletelink"><i class="fas fa-trash-can me-1"></i> Xóa đơn hàng này</a>
+              {% endif %}
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </form>
+
+</div>
+
+<script>
+// Hàm cập nhật trạng thái đơn hàng và tự động lưu ngay lập tức
+function quickSetStatusAndSave(statusValue) {
+  const statusSelect = document.getElementById('id_status');
+  if (statusSelect) {
+    statusSelect.value = statusValue;
+    
+    // Tạo input submit hidden giả lập bấm nút Lưu
+    const form = document.getElementById('{{ opts.model_name }}_form');
+    let saveInput = form.querySelector('input[name="_save"]');
+    if (!saveInput) {
+      saveInput = document.createElement('input');
+      saveInput.type = 'hidden';
+      saveInput.name = '_save';
+      saveInput.value = '1';
+      form.appendChild(saveInput);
+    }
+    
+    // Hiển thị thông báo đang lưu
+    const btn = event.currentTarget;
+    if (btn) {
+      btn.style.opacity = '0.7';
+      btn.innerHTML = '<span class="qs-dot dot-processing"></span><span class="qs-text">Đang lưu...</span>';
+    }
+    
+    form.submit();
+  }
+}
+</script>
+{% endblock %}
