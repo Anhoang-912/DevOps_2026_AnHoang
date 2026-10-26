@@ -1,10 +1,11 @@
-name: CI/CD - Docker Build & Push
+name: CI/CD - Docker Build & Deploy to EC2
 
 on:
   push:
     branches:
       - main
       - master
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -58,12 +59,12 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  deploy:
-    name: Deploy to AWS EC2
+  deploy-to-ec2:
     needs: build-and-push
     runs-on: ubuntu-latest
+
     steps:
-      - name: SSH and deploy on EC2
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -74,4 +75,5 @@ jobs:
             git pull origin main
             ./venv/bin/python manage.py collectstatic --noinput
             pkill -f gunicorn || true
+            sleep 2
             ./venv/bin/gunicorn --workers 2 --threads 4 --timeout 120 --keep-alive 65 --bind 127.0.0.1:8000 web.wsgi:application --daemon
