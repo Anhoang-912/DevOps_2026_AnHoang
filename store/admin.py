@@ -5,28 +5,13 @@ from django.db.models import Count
 from django.contrib.humanize.templatetags.humanize import intcomma
 from .models import (
     Product, Category, CartItem, Order, OrderItem, Review, 
-    Profile, Color, ProductImage, Province, District, Ward
+    Profile, Province, District, Ward
 )
 
 # Cấu hình branding Django Admin
 admin.site.site_header = "Hệ thống Quản trị E-Commerce"
 admin.site.site_title = "Quản trị Shop An Hoang"
 admin.site.index_title = "Bảng điều khiển quản trị"
-
-
-class ProductImageInline(admin.TabularInline):
-    model = ProductImage
-    extra = 1
-    fields = ['color', 'image', 'image_preview']
-    readonly_fields = ['image_preview']
-    verbose_name = "Ảnh theo màu"
-    verbose_name_plural = "Album ảnh chi tiết theo từng màu sắc"
-    
-    def image_preview(self, obj):
-        if obj.image:
-            return mark_safe(f'<img src="{obj.image.url}" class="admin-thumb" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.08);" />')
-        return mark_safe('<span style="color:#94a3b8; font-size:12.5px; font-style:italic;">Chưa có ảnh</span>')
-    image_preview.short_description = "Xem trước"
 
 
 class OrderItemInline(admin.TabularInline):
@@ -67,8 +52,6 @@ class ProductAdmin(admin.ModelAdmin):
     ]
     list_filter = ['category', 'discount_percent']
     search_fields = ['name', 'description']
-    inlines = [ProductImageInline]
-    filter_horizontal = ('colors',)
     list_per_page = 20
     actions = [
         'duplicate_products', 
@@ -86,8 +69,8 @@ class ProductAdmin(admin.ModelAdmin):
         ('2. Giá cả & Khuyến mãi', {
             'fields': ('price', 'discount_percent')
         }),
-        ('3. Hình ảnh & Màu sắc', {
-            'fields': ('image', 'colors')
+        ('3. Hình ảnh sản phẩm', {
+            'fields': ('image',)
         }),
     )
 
@@ -172,13 +155,10 @@ class ProductAdmin(admin.ModelAdmin):
     def duplicate_products(self, request, queryset):
         count = 0
         for product in queryset:
-            colors = list(product.colors.all())
             product.pk = None
             product.id = None
             product.name = f"{product.name} (Bản sao)"
             product.save()
-            if colors:
-                product.colors.set(colors)
             count += 1
         messages.success(request, f"Đã nhân bản thành công {count} sản phẩm mới.")
 
@@ -386,33 +366,10 @@ class ReviewAdmin(admin.ModelAdmin):
     image_thumb.short_description = "Ảnh đính kèm"
 
 
-@admin.register(Color)
-class ColorAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'code', 'color_preview']
-    search_fields = ['name']
-
-    def color_preview(self, obj):
-        return mark_safe(f'<div style="width:28px; height:28px; border-radius:6px; background-color:{obj.code}; border:1px solid #ccc;"></div>')
-    color_preview.short_description = "Màu xem trước"
-
-
-@admin.register(ProductImage)
-class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product', 'color', 'image_thumb')
-    list_filter = ('product', 'color')
-    search_fields = ('product__name', 'color__name')
-
-    def image_thumb(self, obj):
-        if obj.image:
-            return mark_safe(f'<img src="{obj.image.url}" class="admin-thumb" />')
-        return "—"
-    image_thumb.short_description = "Xem trước"
-
-
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'customer_info', 'product_preview', 'color_badge', 
+        'id', 'customer_info', 'product_preview', 
         'quantity', 'unit_price_display', 'subtotal_display', 'created_at_display'
     ]
     list_filter = ['created_at', 'product__category']
@@ -432,12 +389,6 @@ class CartItemAdmin(admin.ModelAdmin):
         phone_str = f" | {phone}" if phone else ""
         return mark_safe(f"<strong>{name}</strong><br><small style='color:#64748b;'>@{obj.user.username}{phone_str}</small>")
     customer_info.short_description = "Khách hàng"
-
-    def color_badge(self, obj):
-        if obj.color:
-            return mark_safe(f'<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background-color:{obj.color.code};border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span> {obj.color.name}')
-        return "—"
-    color_badge.short_description = "Màu"
 
     def unit_price_display(self, obj):
         return f"{intcomma(obj.get_unit_price())} VNĐ"

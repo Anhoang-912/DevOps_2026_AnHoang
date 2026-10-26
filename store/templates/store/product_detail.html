@@ -107,44 +107,6 @@
     text-decoration: line-through;
 }
 
-/* Color Swatch Options */
-.color-swatches-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-}
-
-.color-radio-label {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px 6px 8px;
-    border: 2px solid var(--card-border);
-    border-radius: 24px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.color-dot {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.1);
-}
-
-.color-radio-input {
-    display: none;
-}
-
-.color-radio-input:checked + .color-radio-label {
-    border-color: var(--primary);
-    background: var(--primary-light);
-    color: var(--primary);
-}
-
 /* Quantity Stepper */
 .quantity-stepper {
     display: inline-flex;
@@ -344,20 +306,6 @@
                         <img id="mainProductImage" src="{% static 'images/no-image.png' %}" alt="{{ product.name }}">
                     {% endif %}
                 </div>
-
-                <!-- Gallery Thumbnails -->
-                <div class="thumb-gallery">
-                    {% if product.image %}
-                    <div class="thumb-item active" onclick="switchMainImage('{{ product.image.url }}', this)">
-                        <img src="{{ product.image.url }}" alt="Default">
-                    </div>
-                    {% endif %}
-                    {% for cimg in color_images %}
-                    <div class="thumb-item" onclick="switchMainImage('{{ cimg.image.url }}', this)">
-                        <img src="{{ cimg.image.url }}" alt="{{ cimg.color.name }}">
-                    </div>
-                    {% endfor %}
-                </div>
             </div>
 
             <!-- Col Right: Product Info & Buy Actions -->
@@ -402,24 +350,6 @@
                 <!-- Form Thêm vào giỏ & Mua ngay -->
                 <form id="productBuyForm" method="post" action="{% url 'add_to_cart' product.id %}">
                     {% csrf_token %}
-
-                    <!-- Tùy chọn màu sắc nếu có -->
-                    {% if colors %}
-                    <div class="mb-4">
-                        <label class="fw-bold small text-muted text-uppercase d-block mb-2">Chọn màu sắc:</label>
-                        <div class="color-swatches-group">
-                            {% for color in colors %}
-                            <input type="radio" name="color" id="color_{{ color.id }}" value="{{ color.id }}" class="color-radio-input" 
-                                   {% if forloop.first %}checked{% endif %}
-                                   {% for ci in color_images %}{% if ci.color.id == color.id %}data-img="{{ ci.image.url }}"{% endif %}{% endfor %}>
-                            <label for="color_{{ color.id }}" class="color-radio-label">
-                                <span class="color-dot" style="background-color: {{ color.code }};"></span>
-                                <span>{{ color.name }}</span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
 
                     <!-- Chọn số lượng -->
                     <div class="mb-4">
@@ -698,17 +628,6 @@ function adjustDetailQty(delta) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Chuyển ảnh khi chọn màu sắc radio
-    const colorRadios = document.querySelectorAll('.color-radio-input');
-    colorRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            const imgUrl = this.getAttribute('data-img');
-            if (imgUrl) {
-                switchMainImage(imgUrl, null);
-            }
-        });
-    });
-
     // Xử lý AJAX Thêm vào giỏ hàng
     const ajaxBtn = document.getElementById('ajaxDetailAddCart');
     const form = document.getElementById('productBuyForm');

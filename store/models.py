@@ -3,13 +3,6 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-class Color(models.Model):
-    name = models.CharField(max_length=50)
-    code = models.CharField(max_length=10, help_text="Mã màu HEX, ví dụ: #FF0000")
-    
-    def __str__(self):
-        return self.name
-
 class Category(models.Model):
     name = models.CharField(max_length=100)
 
@@ -23,7 +16,6 @@ class Product(models.Model):
     discount_percent = models.IntegerField(default=0, blank=True, help_text="Phần trăm giảm giá từ 0-100")
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
-    colors = models.ManyToManyField(Color, blank=True, related_name='products')
 
     @property
     def has_discount(self):
@@ -53,22 +45,10 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='color_images')
-    color = models.ForeignKey(Color, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='product_colors/')
-    
-    class Meta:
-        unique_together = ('product', 'color')
-        
-    def __str__(self):
-        return f"{self.product.name} - {self.color.name}"
-
 class CartItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_unit_price(self):

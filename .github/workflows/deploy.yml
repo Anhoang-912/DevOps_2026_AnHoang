@@ -73,6 +73,7 @@ jobs:
           script: |
             cd ~/DevOps_2026_AnHoang
             git pull origin main
+            ./venv/bin/python manage.py migrate --noinput
             ./venv/bin/python manage.py collectstatic --noinput
             pkill -f gunicorn || true
             sleep 2

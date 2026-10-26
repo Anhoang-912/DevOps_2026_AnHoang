@@ -99,7 +99,6 @@
     {% elif opts.model_name == 'order' %}Đơn Hàng
     {% elif opts.model_name == 'category' %}Danh Mục
     {% elif opts.model_name == 'cartitem' %}Giỏ Hàng
-    {% elif opts.model_name == 'color' %}Màu Sắc
     {% elif opts.model_name == 'review' %}Đánh Giá
     {% else %}{{ cl.opts.verbose_name_plural|capfirst }}{% endif %}
   </span>
@@ -121,7 +120,6 @@
           {% elif opts.model_name == 'order' %}<i class="fas fa-receipt"></i>
           {% elif opts.model_name == 'category' %}<i class="fas fa-folder-tree"></i>
           {% elif opts.model_name == 'cartitem' %}<i class="fas fa-cart-shopping"></i>
-          {% elif opts.model_name == 'color' %}<i class="fas fa-palette"></i>
           {% elif opts.model_name == 'review' %}<i class="fas fa-star"></i>
           {% else %}<i class="fas fa-layer-group"></i>{% endif %}
         </span>
@@ -130,7 +128,6 @@
           {% elif opts.model_name == 'order' %}Quản Lý Đơn Hàng
           {% elif opts.model_name == 'category' %}Danh Mục Sản Phẩm
           {% elif opts.model_name == 'cartitem' %}Giỏ Hàng Người Dùng
-          {% elif opts.model_name == 'color' %}Bảng Màu Sắc
           {% elif opts.model_name == 'review' %}Đánh Giá & Nhận Xét
           {% else %}{{ cl.opts.verbose_name_plural|capfirst }}{% endif %}
         </span>

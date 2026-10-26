@@ -840,37 +840,8 @@
               {% if adminform.form.image.errors %}
                 <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.image.errors|striptags }}</div>
               {% endif %}
-            </div>
+            {% block inline_field_sets %}{% endblock %}
           </div>
-
-          <!-- Card 3: Tùy chọn màu sắc sản phẩm (RỘNG RÃI TRONG CỘT TRÁI) -->
-          <div class="product-card">
-            <div class="product-card-title">
-              <i class="fas fa-palette text-primary"></i>
-              <span>3. Tùy Chọn Màu Sắc Khách Hàng Có Thể Chọn</span>
-            </div>
-
-            <div class="prod-field-group">
-              {{ adminform.form.colors }}
-              {% if adminform.form.colors.errors %}
-                <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.colors.errors|striptags }}</div>
-              {% endif %}
-            </div>
-          </div>
-
-          <!-- Card 4: Inlines - Album ảnh theo màu -->
-          <div class="product-card">
-            <div class="product-card-title">
-              <i class="fas fa-images text-primary"></i>
-              <span>4. Album Ảnh Chi Tiết Theo Từng Góc Chụp / Màu Sắc</span>
-            </div>
-            {% block inline_field_sets %}
-              {% for inline_admin_formset in inline_admin_formsets %}
-                {% include inline_admin_formset.opts.template %}
-              {% endfor %}
-            {% endblock %}
-          </div>
-
         </div>
 
         <!-- ============================================================== -->

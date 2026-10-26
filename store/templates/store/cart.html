@@ -175,13 +175,6 @@
                                             <a href="{% url 'product_detail' item.product.id %}" class="fw-bold text-dark text-decoration-none" style="font-size: 0.95rem;">
                                                 {{ item.product.name }}
                                             </a>
-                                            {% if item.color %}
-                                            <div class="small text-muted mt-1 d-flex align-items-center gap-1">
-                                                <span>Màu:</span>
-                                                <span class="d-inline-block rounded-circle" style="width:12px; height:12px; background:{{ item.color.code }}; border:1px solid #ccc;"></span>
-                                                <strong>{{ item.color.name }}</strong>
-                                            </div>
-                                            {% endif %}
                                         </div>
                                     </div>
                                 </td>

@@ -1,36 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product, Category, CartItem, Order, OrderItem, Review, Color, ProductImage, Province, District, Ward
+from .models import Product, Category, CartItem, Order, OrderItem, Review, Province, District, Ward
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .forms import UserProfileForm, ProductForm, CheckoutForm, ProductImageForm
+from .forms import UserProfileForm, ProductForm, CheckoutForm
 from django import forms
 from django.db import models, connection
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
-
-# Form tạm thời cho việc cập nhật giảm giá hàng loạt
-class BulkDiscountForm(forms.Form):
-    category = forms.ModelChoiceField(
-        queryset=Category.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
-    discount_percent = forms.IntegerField(
-        min_value=0,
-        max_value=100,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
-    )
-    min_price = forms.DecimalField(
-        required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        help_text="Áp dụng cho sản phẩm có giá lớn hơn hoặc bằng giá này"
-    )
-    max_price = forms.DecimalField(
-        required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        help_text="Áp dụng cho sản phẩm có giá nhỏ hơn hoặc bằng giá này"
-    )
 
 
 def home(request):
@@ -104,7 +81,6 @@ def product_list(request):
     elif sort == 'discount':
         products = products.order_by('-discount_percent')
     else:
-        # newest
         products = products.order_by('-id')
 
     # Danh mục kèm số lượng sản phẩm
@@ -142,20 +118,10 @@ def add_to_cart(request, product_id):
     except (ValueError, TypeError):
         quantity = 1
 
-    # Lấy màu sắc từ request nếu có
-    color_id = request.POST.get('color')
-    color = None
-    if color_id:
-        try:
-            color = Color.objects.get(id=color_id)
-        except Color.DoesNotExist:
-            pass
-    
     # Thêm hoặc cập nhật giỏ hàng
     item, created = CartItem.objects.get_or_create(
         user=request.user, 
         product=product,
-        color=color,
         defaults={'quantity': quantity}
     )
     
@@ -284,27 +250,8 @@ def checkout_form_view(request):
     })
 
 @login_required
-def profile_view(request):
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Thông tin của bạn đã được cập nhật thành công!')
-            return redirect('store_profile')
-    else:
-        form = UserProfileForm(instance=request.user)
-    
-    return render(request, 'store/profile.html', {
-        'user': request.user,
-        'form': form
-    })
-
-@login_required
 def order_history_view(request):
-    # Bảo vệ bởi @login_required nên không cần kiểm tra thêm
-    # Đảm bảo dữ liệu đơn hàng luôn được tải mới từ cơ sở dữ liệu (force refresh)
-    connection.close()  # Đóng kết nối hiện tại để đảm bảo dữ liệu mới
-    
+    connection.close()
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'store/order_history.html', {'orders': orders})
 
@@ -315,7 +262,7 @@ def add_product(request):
         if form.is_valid():
             product = form.save()
             messages.success(request, 'Sản phẩm đã được thêm thành công!')
-            return redirect('add_product_images', product_id=product.id)
+            return redirect('product_detail', product_id=product.id)
         else:
             messages.error(request, 'Đã xảy ra lỗi. Vui lòng kiểm tra lại thông tin.')
     else:
@@ -323,52 +270,6 @@ def add_product(request):
         
     return render(request, 'store/add_product.html', {
         'form': form
-    })
-
-@login_required
-def add_product_images(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    colors = product.colors.all()
-    
-    if request.method == 'POST':
-        color_id = request.POST.get('color')
-        image = request.FILES.get('image')
-        
-        if color_id and image:
-            color = get_object_or_404(Color, id=color_id)
-            
-            # Kiểm tra xem đã có hình ảnh cho màu này chưa
-            product_image, created = ProductImage.objects.get_or_create(
-                product=product,
-                color=color,
-                defaults={'image': image}
-            )
-            
-            if not created:
-                product_image.image = image
-                product_image.save()
-                
-            messages.success(request, f'Đã thêm hình ảnh cho màu {color.name}!')
-            
-            # Kiểm tra xem đã thêm hình ảnh cho tất cả các màu chưa
-            if ProductImage.objects.filter(product=product).count() == colors.count():
-                messages.success(request, 'Đã thêm đầy đủ hình ảnh cho tất cả các màu!')
-                return redirect('product_detail', product_id=product.id)
-        else:
-            messages.error(request, 'Vui lòng chọn màu sắc và tải lên hình ảnh.')
-    
-    # Lọc ra những màu đã có hình ảnh
-    colors_with_images = Color.objects.filter(
-        id__in=ProductImage.objects.filter(product=product).values_list('color_id', flat=True)
-    )
-    
-    # Lọc ra những màu chưa có hình ảnh
-    colors_without_images = colors.exclude(id__in=colors_with_images)
-    
-    return render(request, 'store/add_product_images.html', {
-        'product': product,
-        'colors_without_images': colors_without_images,
-        'colors_with_images': colors_with_images
     })
 
 @login_required
@@ -511,12 +412,6 @@ def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     reviews = Review.objects.filter(product=product).order_by('-created_at')
     
-    # Lấy danh sách các màu của sản phẩm
-    colors = product.colors.all()
-    
-    # Lấy danh sách hình ảnh theo màu
-    color_images = ProductImage.objects.filter(product=product)
-    
     # Tính điểm trung bình
     avg_rating = reviews.aggregate(models.Avg('rating'))['rating__avg'] or 0
     
@@ -553,8 +448,6 @@ def product_detail(request, product_id):
         'product': product,
         'reviews': reviews,
         'avg_rating': avg_rating,
-        'colors': colors,
-        'color_images': color_images,
         'related_products': related_products,
         'total_reviews': total_reviews,
         'rating_breakdown': rating_breakdown,
@@ -590,7 +483,6 @@ def add_review(request, product_id):
 
 @login_required
 def order_detail_view(request, order_id):
-    # @login_required đã đảm bảo người dùng đăng nhập
     order = get_object_or_404(Order, id=order_id, user=request.user)
     items = order.items.all()
     
@@ -615,11 +507,9 @@ def order_detail_view(request, order_id):
 
 @login_required
 def delete_review(request, review_id):
-    # Lấy đánh giá theo ID
     review = get_object_or_404(Review, id=review_id)
     product_id = review.product.id
     
-    # Kiểm tra quyền xóa (chỉ cho phép người dùng xóa đánh giá của chính họ hoặc admin)
     if review.user == request.user or request.user.is_staff:
         review.delete()
         messages.success(request, 'Đánh giá đã được xóa thành công!')
@@ -628,59 +518,15 @@ def delete_review(request, review_id):
     
     return redirect('product_detail', product_id=product_id)
 
-@staff_member_required
-def bulk_discount(request):
-    if request.method == 'POST':
-        form = BulkDiscountForm(request.POST)
-        if form.is_valid():
-            category = form.cleaned_data['category']
-            discount_percent = form.cleaned_data['discount_percent']
-            min_price = form.cleaned_data['min_price']
-            max_price = form.cleaned_data['max_price']
-            
-            # Xây dựng query cơ bản
-            products = Product.objects.all()
-            
-            # Lọc theo danh mục nếu có
-            if category:
-                products = products.filter(category=category)
-            
-            # Lọc theo giá nếu có
-            if min_price:
-                products = products.filter(price__gte=min_price)
-            if max_price:
-                products = products.filter(price__lte=max_price)
-            
-            # Áp dụng giảm giá
-            count = products.count()
-            products.update(discount_percent=discount_percent)
-            
-            messages.success(request, f'Đã áp dụng giảm giá {discount_percent}% cho {count} sản phẩm.')
-            return redirect('bulk_discount')
-    else:
-        form = BulkDiscountForm()
-    
-    # Hiển thị danh sách sản phẩm có giảm giá
-    discounted_products = Product.objects.filter(discount_percent__gt=0)
-    
-    return render(request, 'store/bulk_discount.html', {
-        'form': form,
-        'discounted_products': discounted_products
-    })
-
 def get_districts(request):
     province_id = request.GET.get('province')
-    print(f"DEBUG: Getting districts for province_id={province_id}")
     
     if province_id:
         try:
             province_id = int(province_id)
             districts = District.objects.filter(province_id=province_id).order_by('name')
             
-            # Nếu không có quận/huyện nào, tạo dữ liệu mẫu
             if districts.count() == 0:
-                print(f"DEBUG: Không có quận/huyện nào cho tỉnh id={province_id}, tạo dữ liệu mẫu")
-                # Tạo dữ liệu mẫu - Không lưu vào DB
                 dummy_districts = [
                     {'id': 900001, 'name': 'Quận 1'},
                     {'id': 900002, 'name': 'Quận 2'},
@@ -691,42 +537,30 @@ def get_districts(request):
                 result = dummy_districts
             else:
                 result = [{'id': district.id, 'name': district.name} for district in districts]
-            
-            print(f"DEBUG: Found {len(result)} districts for province_id={province_id}")
-            
-            # In ra chi tiết dữ liệu để debug
-            for i, district in enumerate(result[:5]):  # Chỉ hiển thị 5 phần tử đầu để tránh log quá dài
-                print(f"  - District {i+1}: ID={district['id']}, Name={district['name']}")
                 
             response = JsonResponse(result, safe=False)
             response["Access-Control-Allow-Origin"] = "*"
             response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
             response["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type"
             return response
-        except (ValueError, TypeError) as e:
-            print(f"DEBUG: Error converting province_id to int: {e}")
+        except (ValueError, TypeError):
             response = JsonResponse([], safe=False)
             response["Access-Control-Allow-Origin"] = "*"
             return response
     
-    print("DEBUG: No province_id provided, returning empty list")
     response = JsonResponse([], safe=False)
     response["Access-Control-Allow-Origin"] = "*"
     return response
 
 def get_wards(request):
     district_id = request.GET.get('district')
-    print(f"DEBUG: Getting wards for district_id={district_id}")
     
     if district_id:
         try:
             district_id = int(district_id)
             wards = Ward.objects.filter(district_id=district_id).order_by('name')
             
-            # Nếu không có phường/xã nào, tạo dữ liệu mẫu
             if wards.count() == 0:
-                print(f"DEBUG: Không có phường/xã nào cho quận/huyện id={district_id}, tạo dữ liệu mẫu")
-                # Tạo dữ liệu mẫu - Không lưu vào DB
                 dummy_wards = [
                     {'id': 910001, 'name': 'Phường Bến Nghé'},
                     {'id': 910002, 'name': 'Phường Bến Thành'},
@@ -737,25 +571,17 @@ def get_wards(request):
                 result = dummy_wards
             else:
                 result = [{'id': ward.id, 'name': ward.name} for ward in wards]
-            
-            print(f"DEBUG: Found {len(result)} wards for district_id={district_id}")
-            
-            # In ra chi tiết dữ liệu để debug
-            for i, ward in enumerate(result[:5]):  # Chỉ hiển thị 5 phần tử đầu để tránh log quá dài
-                print(f"  - Ward {i+1}: ID={ward['id']}, Name={ward['name']}")
                 
             response = JsonResponse(result, safe=False)
             response["Access-Control-Allow-Origin"] = "*"
             response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
             response["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type"
             return response
-        except (ValueError, TypeError) as e:
-            print(f"DEBUG: Error converting district_id to int: {e}")
+        except (ValueError, TypeError):
             response = JsonResponse([], safe=False)
             response["Access-Control-Allow-Origin"] = "*"
             return response
     
-    print("DEBUG: No district_id provided, returning empty list")
     response = JsonResponse([], safe=False)
     response["Access-Control-Allow-Origin"] = "*"
     return response

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from .models import Product, Category, Profile, Color, Order, ProductImage, Province, District, Ward
+from .models import Product, Category, Profile, Order, Province, District, Ward
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -24,23 +24,13 @@ class ProfileForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'discount_percent', 'category', 'image', 'colors']
+        fields = ['name', 'description', 'price', 'discount_percent', 'category', 'image']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'discount_percent': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '100'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
-            'image': forms.FileInput(attrs={'class': 'form-control'}),
-            'colors': forms.SelectMultiple(attrs={'class': 'form-select', 'size': '5'}),
-        }
-
-class ProductImageForm(forms.ModelForm):
-    class Meta:
-        model = ProductImage
-        fields = ['color', 'image']
-        widgets = {
-            'color': forms.Select(attrs={'class': 'form-control'}),
             'image': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
@@ -86,4 +76,4 @@ class CheckoutForm(forms.Form):
         required=False,
         initial='cod',
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
-    )
+    )
