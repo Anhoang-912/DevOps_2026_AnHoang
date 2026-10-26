@@ -133,9 +133,15 @@
     <!-- Header Actions -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3 no-print">
         <div>
+            {% if request.user.is_staff %}
+            <a href="/admin/store/order/" class="text-muted small text-decoration-none mb-1 d-inline-block">
+                <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách đơn hàng
+            </a>
+            {% else %}
             <a href="{% url 'order_history' %}" class="text-muted small text-decoration-none mb-1 d-inline-block">
                 <i class="fas fa-arrow-left me-1"></i> Quay lại lịch sử đơn hàng
             </a>
+            {% endif %}
             <h3 class="fw-bold mb-0">Đơn Hàng #{{ order.id }}</h3>
             <small class="text-muted">Đặt lúc: {{ order.created_at|date:"d/m/Y H:i" }}</small>
         </div>

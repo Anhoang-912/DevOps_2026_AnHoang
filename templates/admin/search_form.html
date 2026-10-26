@@ -1,0 +1,32 @@
+{% load i18n static %}
+{% if cl.search_fields %}
+<div id="toolbar" style="margin-bottom: 16px;">
+<form id="changelist-search" method="get" style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <div class="search-input-wrapper" style="position: relative; display: flex; align-items: center;">
+        <i class="fas fa-magnifying-glass" style="position: absolute; left: 14px; color: #94a3b8; font-size: 14px; pointer-events: none;"></i>
+        <input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar"
+               placeholder="Nhập từ khóa tìm kiếm..."
+               style="height: 42px; width: 380px; max-width: 100%; padding: 0 16px 0 38px; border: 1.5px solid #cbd5e1; border-radius: 10px; background: #ffffff; color: #1e293b; font-size: 14px; outline: none; box-sizing: border-box; transition: all 0.2s ease;"
+               onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 3px rgba(79, 70, 229, 0.15)';"
+               onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none';">
+    </div>
+    
+    <button type="submit" style="height: 42px; padding: 0 20px; background: #4f46e5; color: #ffffff; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-sizing: border-box; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25); transition: all 0.2s ease;"
+            onmouseover="this.style.background='#4338ca';"
+            onmouseout="this.style.background='#4f46e5';">
+        <i class="fas fa-search"></i> Tìm kiếm
+    </button>
+
+    {% if show_result_count %}
+        <span class="small quiet" style="font-size: 13.5px; color: #64748b; font-weight: 500; margin-left: 6px;">
+            {% blocktranslate count counter=cl.result_count %}Tìm thấy <strong>{{ counter }}</strong> kết quả{% plural %}Tìm thấy <strong>{{ counter }}</strong> kết quả{% endblocktranslate %}
+            (<a href="?{% if cl.is_popup %}_popup=1{% endif %}" style="color: #4f46e5; font-weight: 600; text-decoration: none;">Xem tất cả</a>)
+        </span>
+    {% endif %}
+
+    {% for pair in cl.params.items %}
+        {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">{% endif %}
+    {% endfor %}
+</form>
+</div>
+{% endif %}

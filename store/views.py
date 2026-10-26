@@ -336,7 +336,10 @@ def delete_order(request, order_id):
 
 @login_required
 def update_order_address(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.user.is_staff or request.user.is_superuser:
+        order = get_object_or_404(Order, id=order_id)
+    else:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
     
     if order.status != 'pending':
         messages.error(request, "Chỉ có thể cập nhật địa chỉ cho đơn hàng đang chờ xử lý.")
@@ -383,7 +386,10 @@ def update_order_address(request, order_id):
 
 @login_required
 def cancel_order(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.user.is_staff or request.user.is_superuser:
+        order = get_object_or_404(Order, id=order_id)
+    else:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
     
     if order.status != 'pending':
         messages.error(request, "Chỉ có thể hủy đơn hàng đang chờ xử lý.")
@@ -486,7 +492,10 @@ def add_review(request, product_id):
 
 @login_required
 def order_detail_view(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.user.is_staff or request.user.is_superuser:
+        order = get_object_or_404(Order, id=order_id)
+    else:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
     items = order.items.all()
     
     # Tạo dữ liệu cho timeline theo dõi đơn hàng
