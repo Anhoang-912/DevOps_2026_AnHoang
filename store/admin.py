@@ -19,11 +19,13 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
     fields = ['color', 'image', 'image_preview']
     readonly_fields = ['image_preview']
+    verbose_name = "Ảnh theo màu"
+    verbose_name_plural = "Album ảnh chi tiết theo từng màu sắc"
     
     def image_preview(self, obj):
         if obj.image:
-            return mark_safe(f'<img src="{obj.image.url}" class="admin-thumb" style="width: 50px; height: 50px;" />')
-        return "Chưa có ảnh"
+            return mark_safe(f'<img src="{obj.image.url}" class="admin-thumb" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.08);" />')
+        return mark_safe('<span style="color:#94a3b8; font-size:12.5px; font-style:italic;">Chưa có ảnh</span>')
     image_preview.short_description = "Xem trước"
 
 

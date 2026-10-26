@@ -13,7 +13,7 @@
 
 <!-- Base CSS -->
 <link rel="stylesheet" href="{% static "admin/css/base.css" %}">
-<link rel="stylesheet" href="{% static "admin/css/modern_admin.css" %}?v=3.0">
+<link rel="stylesheet" href="{% static "admin/css/modern_admin.css" %}?v=3.1">
 {% block extrastyle %}{% endblock %}
 {% block extrahead %}{% endblock %}
 
@@ -687,14 +687,14 @@ fieldset.module .description {
   color: #64748b !important;
   margin-bottom: 16px !important;
 }
-.form-row {
+div.form-row {
   padding: 12px 0 !important;
   border-bottom: 1px solid #f8fafc !important;
 }
-.form-row:last-child {
+div.form-row:last-child {
   border-bottom: none !important;
 }
-.form-row label {
+div.form-row label {
   font-size: 13px !important;
   font-weight: 600 !important;
   color: #334155 !important;
@@ -825,22 +825,37 @@ input[type="number"]:focus, textarea:focus, select:focus {
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 14px !important;
-  padding: 20px !important;
+  padding: 0 !important;
   margin-bottom: 24px !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  overflow: hidden !important;
 }
 .inline-group h2 {
-  font-size: 1.05rem !important;
+  font-size: 14px !important;
   font-weight: 700 !important;
   color: #0f172a !important;
-  border-bottom: 1px solid #f1f5f9 !important;
-  padding-bottom: 10px !important;
-  margin-bottom: 16px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 14px 20px !important;
+  margin: 0 !important;
+  background: #f8fafc !important;
+}
+table tr.form-row,
+.tabular tr.form-row,
+.inline-group tr.form-row {
+  display: table-row !important;
+  padding: 0 !important;
+  border-bottom: none !important;
   background: transparent !important;
+}
+table tr.empty-form,
+.tabular tr.empty-form,
+.inline-group tr.empty-form {
+  display: none !important;
 }
 .inline-group table {
   width: 100% !important;
-  border-collapse: collapse !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
 }
 .inline-group th {
   background: #f8fafc !important;
@@ -855,6 +870,7 @@ input[type="number"]:focus, textarea:focus, select:focus {
   padding: 10px 14px !important;
   border-bottom: 1px solid #f1f5f9 !important;
   vertical-align: middle !important;
+  display: table-cell !important;
 }
 
 /* Tắt hierarchy rườm rà */
