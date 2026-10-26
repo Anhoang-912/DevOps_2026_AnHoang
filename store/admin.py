@@ -62,10 +62,9 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'image_preview', 'name', 'category', 'price', 
-        'discount_percent', 'discount_price_display', 'rating_display', 'actions_column'
+        'product_id_display', 'image_preview', 'product_name_display', 
+        'category_badge', 'price_display', 'rating_display', 'actions_column'
     ]
-    list_editable = ['price', 'discount_percent', 'category']
     list_filter = ['category', 'discount_percent']
     search_fields = ['name', 'description']
     inlines = [ProductImageInline]
@@ -92,22 +91,67 @@ class ProductAdmin(admin.ModelAdmin):
         }),
     )
 
+    def product_id_display(self, obj):
+        return mark_safe(f'<span style="font-weight:700; color:#64748b; font-size:12.5px;">#{obj.id}</span>')
+    product_id_display.short_description = "ID"
+    product_id_display.admin_order_field = 'id'
+
     def image_preview(self, obj):
         if obj.image:
-            return mark_safe(f'<img src="{obj.image.url}" class="admin-thumb" title="{obj.name}" />')
-        return mark_safe('<div style="width:44px; height:44px; background:#f1f5f9; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:10px;">No pic</div>')
-    image_preview.short_description = "Hình ảnh"
+            return mark_safe(f'<a href="/admin/store/product/{obj.id}/change/"><img src="{obj.image.url}" class="admin-table-thumb" title="{obj.name}" /></a>')
+        return mark_safe('<div class="admin-table-no-thumb"><i class="fas fa-image"></i></div>')
+    image_preview.short_description = "Ảnh"
 
-    def discount_price_display(self, obj):
+    def product_name_display(self, obj):
+        change_url = f"/admin/store/product/{obj.id}/change/"
+        desc = ""
+        if obj.description:
+            clean_desc = obj.description.strip().replace("\n", " ")
+            if len(clean_desc) > 55:
+                clean_desc = clean_desc[:55] + "..."
+            desc = f'<div style="font-size:12px; color:#64748b; margin-top:3px; line-height:1.3;">{clean_desc}</div>'
+        return mark_safe(
+            f'<div style="display:flex; flex-direction:column;">'
+            f'<a href="{change_url}" class="prod-title-link" style="font-weight:700; color:#0f172a; font-size:13.5px; text-decoration:none;">{obj.name}</a>'
+            f'{desc}'
+            f'</div>'
+        )
+    product_name_display.short_description = "Tên sản phẩm"
+    product_name_display.admin_order_field = 'name'
+
+    def category_badge(self, obj):
+        if obj.category:
+            cat_url = f"/admin/store/product/?category__id__exact={obj.category.id}"
+            return mark_safe(
+                f'<a href="{cat_url}" style="text-decoration:none;" title="Xem tất cả sản phẩm trong danh mục {obj.category.name}">'
+                f'<span class="cat-pill" style="display:inline-flex; align-items:center; gap:5px; background:#f1f5f9; color:#334155; padding:4px 10px; border-radius:16px; font-weight:600; font-size:12px; border:1px solid #e2e8f0; transition:all 0.15s ease;">'
+                f'<i class="fas fa-folder text-primary" style="font-size:11px;"></i> {obj.category.name}'
+                f'</span></a>'
+            )
+        return mark_safe('<span style="color:#94a3b8; font-size:12px; font-style:italic;">Chưa phân loại</span>')
+    category_badge.short_description = "Danh mục"
+    category_badge.admin_order_field = 'category__name'
+
+    def price_display(self, obj):
         if obj.has_discount:
-            return mark_safe(f'<strong style="color:#ef4444;">{intcomma(obj.discount_price)} ₫</strong> <span class="admin-badge badge-discount">-{obj.discount_percent}%</span>')
-        return mark_safe(f'{intcomma(obj.price)} ₫')
-    discount_price_display.short_description = "Giá sau giảm"
+            return mark_safe(
+                f'<div style="line-height:1.35;">'
+                f'<div style="color:#ef4444; font-weight:800; font-size:13.5px;">{intcomma(obj.discount_price)} ₫ '
+                f'<span style="background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:700; padding:2px 6px; border-radius:6px;">-{obj.discount_percent}%</span></div>'
+                f'<div style="color:#94a3b8; font-size:11.5px; text-decoration:line-through; margin-top:2px;">{intcomma(obj.price)} ₫</div>'
+                f'</div>'
+            )
+        return mark_safe(f'<strong style="color:#0f172a; font-size:13.5px;">{intcomma(obj.price)} ₫</strong>')
+    price_display.short_description = "Giá bán & Ưu đãi"
+    price_display.admin_order_field = 'price'
 
     def rating_display(self, obj):
+        count = obj.rating_count
+        if count == 0:
+            return mark_safe('<span style="color:#94a3b8; font-size:12px; font-style:italic;">Chưa có</span>')
         stars = round(obj.rating_avg)
         star_str = "★" * stars + "☆" * (5 - stars)
-        return mark_safe(f'<span class="admin-stars">{star_str}</span> <small>({obj.rating_count})</small>')
+        return mark_safe(f'<span style="color:#f59e0b; font-size:12.5px; letter-spacing:1px;">{star_str}</span> <small style="color:#64748b; font-weight:600;">({count})</small>')
     rating_display.short_description = "Đánh giá"
 
     def actions_column(self, obj):
@@ -116,9 +160,9 @@ class ProductAdmin(admin.ModelAdmin):
         view_url = f"/product/{obj.id}/"
         return mark_safe(
             f'<div style="display:flex; gap:6px; align-items:center;">'
-            f'<a href="{view_url}" class="row-btn" title="Xem sản phẩm trên web"><i class="fas fa-eye"></i></a>'
-            f'<a href="{change_url}" class="row-btn" title="Chỉnh sửa sản phẩm"><i class="fas fa-pen"></i></a>'
-            f'<a href="{delete_url}" class="row-btn" style="color:#ef4444; background:#ffe4e6; border:1px solid #fecdd3;" title="Xóa vĩnh viễn sản phẩm này" onclick="return confirm(\'Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm [{obj.name}] khỏi hệ thống không?\');"><i class="fas fa-trash-can"></i></a>'
+            f'<a href="{view_url}" target="_blank" class="table-action-btn btn-view" title="Xem trên cửa hàng"><i class="fas fa-arrow-up-right-from-square"></i></a>'
+            f'<a href="{change_url}" class="table-action-btn btn-edit" title="Chỉnh sửa sản phẩm"><i class="fas fa-pen"></i></a>'
+            f'<a href="{delete_url}" class="table-action-btn btn-del" title="Xóa vĩnh viễn sản phẩm" onclick="return confirm(\'Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm [{obj.name}] khỏi hệ thống không?\');"><i class="fas fa-trash-can"></i></a>'
             f'</div>'
         )
     actions_column.short_description = "Thao tác"
@@ -196,20 +240,12 @@ class OrderAdmin(admin.ModelAdmin):
         order_detail_url = f"/order/{obj.id}/"
         return mark_safe(
             f'<div style="display:flex; gap:6px; align-items:center;">'
-            f'<a href="{order_detail_url}" class="row-btn" title="Xem chi tiết đơn hàng"><i class="fas fa-receipt"></i></a>'
-            f'<a href="{change_url}" class="row-btn" title="Chỉnh sửa đơn hàng"><i class="fas fa-pen"></i></a>'
-            f'<a href="{delete_url}" class="row-btn" style="color:#ef4444; background:#ffe4e6; border:1px solid #fecdd3;" title="Xóa đơn hàng này" onclick="return confirm(\'Bạn có chắc chắn muốn xóa đơn hàng #{obj.id} không?\');"><i class="fas fa-trash-can"></i></a>'
+            f'<a href="{order_detail_url}" class="table-action-btn btn-view" title="Xem chi tiết đơn hàng"><i class="fas fa-receipt"></i></a>'
+            f'<a href="{change_url}" class="table-action-btn btn-edit" title="Chỉnh sửa đơn hàng"><i class="fas fa-pen"></i></a>'
+            f'<a href="{delete_url}" class="table-action-btn btn-del" title="Xóa đơn hàng này" onclick="return confirm(\'Bạn có chắc chắn muốn xóa đơn hàng #{obj.id} không?\');"><i class="fas fa-trash-can"></i></a>'
             f'</div>'
         )
     actions_column.short_description = "Thao tác"
-    list_editable = ['status']
-    list_filter = ['status', 'payment_method', 'created_at']
-    search_fields = ['id', 'full_name', 'phone', 'address', 'user__username', 'user__email', 'items__product__name']
-    readonly_fields = ['created_at', 'updated_at']
-    inlines = [OrderItemInline]
-    date_hierarchy = 'created_at'
-    list_per_page = 20
-    actions = ['mark_confirmed', 'mark_processing', 'mark_shipped', 'mark_delivered', 'mark_cancelled']
 
     fieldsets = (
         ('Trạng thái & Thanh toán', {
