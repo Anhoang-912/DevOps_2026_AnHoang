@@ -90,10 +90,10 @@ from decouple import config
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-MONGODB_HOST = str(config('MONGODB_HOST', default='')).strip()
+MONGODB_HOST = str(config('MONGODB_HOST', default='mongodb+srv://cluster0.hrrmitg.mongodb.net/?retryWrites=true&w=majority')).strip()
 MONGODB_NAME = str(config('MONGODB_NAME', default='ecommerce_db')).strip()
-MONGODB_USER = str(config('MONGODB_USER', default='')).strip()
-MONGODB_PASSWORD = str(config('MONGODB_PASSWORD', default='')).strip()
+MONGODB_USER = str(config('MONGODB_USER', default='an2k52012_db_user')).strip()
+MONGODB_PASSWORD = str(config('MONGODB_PASSWORD', default='Anhoang.912')).strip()
 
 TURSO_DB_URL = str(config('TURSO_DB_URL', default='')).strip()
 TURSO_AUTH_TOKEN = str(config('TURSO_AUTH_TOKEN', default='')).strip()
