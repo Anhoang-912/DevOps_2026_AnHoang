@@ -88,14 +88,12 @@ jobs:
             git pull origin main
             
             # Cấu hình .env kết nối MongoDB Atlas trên EC2
-            cat << 'ENVEOF' > .env
-MONGODB_HOST=mongodb+srv://cluster0.hrrmitg.mongodb.net/?retryWrites=true&w=majority
-MONGODB_NAME=ecommerce_db
-MONGODB_USER=an2k52012_db_user
-MONGODB_PASSWORD=Anhoang.912
-SECRET_KEY=django-insecure-lh9+kdxol_(kvcoc0lt#8ro1ntq7x(9$x7v9x44nu)_oq5$5w-
-DEBUG=True
-ENVEOF
+            echo "MONGODB_HOST=mongodb+srv://cluster0.hrrmitg.mongodb.net/?retryWrites=true&w=majority" > .env
+            echo "MONGODB_NAME=ecommerce_db" >> .env
+            echo "MONGODB_USER=an2k52012_db_user" >> .env
+            echo "MONGODB_PASSWORD=Anhoang.912" >> .env
+            echo "SECRET_KEY=django-insecure-lh9+kdxol_(kvcoc0lt#8ro1ntq7x(9\$x7v9x44nu)_oq5\$5w-" >> .env
+            echo "DEBUG=True" >> .env
 
             ./venv/bin/pip install -r requirements.txt --quiet
             ./venv/bin/python manage.py migrate --noinput
