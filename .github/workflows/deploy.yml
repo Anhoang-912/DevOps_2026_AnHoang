@@ -84,6 +84,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $EC2_USER@$EC2_HOST bash << 'EOF'
             set -e
             cd ~/DevOps_2026_AnHoang
+            rm -f .env
             git checkout -- db.sqlite3 || true
             git pull origin main
             ./venv/bin/python manage.py migrate --noinput
