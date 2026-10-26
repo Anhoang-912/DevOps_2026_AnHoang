@@ -74,6 +74,15 @@ class ProductAdmin(admin.ModelAdmin):
         }),
     )
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        if formfield and hasattr(formfield, 'widget'):
+            formfield.widget.can_add_related = False
+            formfield.widget.can_change_related = False
+            formfield.widget.can_delete_related = False
+            formfield.widget.can_view_related = False
+        return formfield
+
     def product_id_display(self, obj):
         return mark_safe(f'<span style="font-weight:700; color:#64748b; font-size:12.5px;">#{obj.id}</span>')
     product_id_display.short_description = "ID"

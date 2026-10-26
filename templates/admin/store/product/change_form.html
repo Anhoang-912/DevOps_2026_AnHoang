@@ -235,44 +235,21 @@
   outline: none !important;
 }
 
-/* Related Widget Fix (Category dropdown full width + 3 icons) */
+/* Category dropdown full width (no popup buttons) */
 .prod-field-group .related-widget-wrapper {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
+  display: block !important;
   width: 100% !important;
 }
 .prod-field-group .related-widget-wrapper select {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
+  width: 100% !important;
   height: 42px !important;
   min-height: 42px !important;
   line-height: normal !important;
   padding: 0 36px 0 14px !important;
 }
-.prod-field-group .related-widget-wrapper-link {
-  flex-shrink: 0 !important;
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 8px !important;
-  background: #f8fafc !important;
-  border: 1.5px solid #cbd5e1 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.15s ease !important;
-  color: #475569 !important;
-  text-decoration: none !important;
-}
-.prod-field-group .related-widget-wrapper-link:hover {
-  background: #eef2ff !important;
-  border-color: #4f46e5 !important;
-  transform: translateY(-1px) !important;
-}
-.prod-field-group .related-widget-wrapper-link img {
-  width: 16px !important;
-  height: 16px !important;
-  display: block !important;
+.prod-field-group .related-widget-wrapper-link,
+.related-widget-wrapper-link {
+  display: none !important;
 }
 
 /* File Upload Widget Styling */
@@ -296,41 +273,6 @@
   border-radius: 10px;
   object-fit: cover;
   border: 1px solid #cbd5e1;
-}
-
-/* Colors Filter Horizontal (Full Width in Left Column) */
-.product-card .selector {
-  width: 100% !important;
-  max-width: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  flex-wrap: wrap !important;
-}
-.product-card .selector-available,
-.product-card .selector-chosen {
-  flex: 1 1 280px !important;
-  width: auto !important;
-  border: 1.5px solid #cbd5e1 !important;
-  border-radius: 10px !important;
-  overflow: hidden !important;
-  background: #ffffff !important;
-}
-.product-card .selector select {
-  width: 100% !important;
-  height: 190px !important;
-  border: none !important;
-  padding: 8px !important;
-}
-.product-card .selector-available h2,
-.product-card .selector-chosen h2 {
-  background: #f1f5f9 !important;
-  color: #334155 !important;
-  font-size: 12.5px !important;
-  font-weight: 700 !important;
-  padding: 9px 14px !important;
-  border-bottom: 1px solid #e2e8f0 !important;
-  margin: 0 !important;
 }
 
 /* 4. Right Sticky Column */
@@ -488,224 +430,6 @@
   border-bottom: 1px solid #f1f5f9 !important;
   float: none !important;
 }
-
-.product-card .inline-related table {
-  width: 100% !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  overflow: hidden !important;
-  background: #ffffff !important;
-}
-
-.product-card .inline-related table thead th {
-  background: #f8fafc !important;
-  color: #475569 !important;
-  font-weight: 700 !important;
-  font-size: 12px !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.04em !important;
-  padding: 12px 14px !important;
-  border-bottom: 2px solid #e2e8f0 !important;
-  text-align: left !important;
-  vertical-align: middle !important;
-}
-
-.product-card .inline-related th.original,
-.product-card .inline-related td.original {
-  width: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
-  line-height: 0 !important;
-  font-size: 0 !important;
-}
-
-.product-card .inline-related th.column-image_preview,
-.product-card .inline-related td.field-image_preview,
-.product-card .inline-related th.column-DELETE,
-.product-card .inline-related th:last-child,
-.product-card .inline-related td.delete {
-  text-align: center !important;
-}
-
-/* Related widget trong bảng inline (Màu sắc + 3 nút thao tác) */
-.product-card .inline-related .related-widget-wrapper {
-  display: flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  width: 100% !important;
-  min-width: 160px !important;
-}
-
-.product-card .inline-related .related-widget-wrapper select {
-  flex: 1 1 auto !important;
-  min-width: 120px !important;
-  height: 38px !important;
-  min-height: 38px !important;
-  padding: 0 32px 0 10px !important;
-  font-size: 13px !important;
-  border-radius: 8px !important;
-  border: 1.5px solid #cbd5e1 !important;
-  background-color: #ffffff !important;
-  box-sizing: border-box !important;
-}
-
-.product-card .inline-related .related-widget-wrapper-link {
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 6px !important;
-  background: #f1f5f9 !important;
-  border: 1.5px solid #cbd5e1 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
-  transition: all 0.15s ease !important;
-  text-decoration: none !important;
-}
-
-.product-card .inline-related .related-widget-wrapper-link:hover {
-  background: #e0e7ff !important;
-  border-color: #6366f1 !important;
-  transform: translateY(-1px);
-}
-
-.product-card .inline-related .related-widget-wrapper-link img {
-  width: 14px !important;
-  height: 14px !important;
-}
-
-/* Cột chọn file ảnh */
-.product-card .inline-related td.field-image input[type="file"] {
-  height: 36px !important;
-  padding: 6px 10px !important;
-  font-size: 12.5px !important;
-  border: 1.5px dashed #cbd5e1 !important;
-  border-radius: 8px !important;
-  background: #f8fafc !important;
-  width: 100% !important;
-  max-width: 280px !important;
-  box-sizing: border-box !important;
-}
-
-.product-card .inline-related td.field-image input[type="file"]:hover {
-  border-color: #4f46e5 !important;
-  background: #eef2ff !important;
-}
-
-.product-card .inline-related td.field-image p.file-upload {
-  margin: 0 !important;
-  font-size: 12px !important;
-  color: #475569 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
-}
-
-.product-card .inline-related td.field-image p.file-upload a {
-  color: #4f46e5 !important;
-  font-weight: 600 !important;
-  text-decoration: underline !important;
-  word-break: break-all !important;
-}
-
-/* Cột xem trước ảnh */
-.product-card .inline-related td.field-image_preview {
-  width: 90px !important;
-  white-space: nowrap !important;
-  text-align: center !important;
-}
-
-.product-card .inline-related td.field-image_preview p {
-  margin: 0 !important;
-  color: #94a3b8 !important;
-  font-size: 12.5px !important;
-  font-style: italic !important;
-}
-
-.product-card .inline-related td.field-image_preview img.admin-thumb {
-  width: 50px !important;
-  height: 50px !important;
-  border-radius: 8px !important;
-  object-fit: cover !important;
-  border: 1.5px solid #cbd5e1 !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08) !important;
-  display: inline-block !important;
-}
-
-/* Cột xóa dòng */
-.product-card .inline-related td.delete {
-  width: 90px !important;
-  white-space: nowrap !important;
-  text-align: center !important;
-}
-
-.product-card .inline-related td.delete input[type="checkbox"] {
-  width: 18px !important;
-  height: 18px !important;
-  accent-color: #ef4444 !important;
-  cursor: pointer !important;
-  margin: 0 !important;
-  vertical-align: middle !important;
-}
-
-.product-card .inline-related .inline-deletelink {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 30px !important;
-  height: 30px !important;
-  border-radius: 6px !important;
-  background: #fef2f2 !important;
-  color: #ef4444 !important;
-  border: 1px solid #fecaca !important;
-  text-decoration: none !important;
-  font-size: 0 !important;
-  transition: all 0.15s ease !important;
-  cursor: pointer !important;
-}
-
-.product-card .inline-related .inline-deletelink::before {
-  content: "✕" !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-}
-
-.product-card .inline-related .inline-deletelink:hover {
-  background: #fee2e2 !important;
-  color: #dc2626 !important;
-  border-color: #fca5a5 !important;
-}
-
-/* Nút thêm dòng ảnh mới */
-.product-card .inline-group .add-row {
-  background: #f8fafc !important;
-  border-top: 1px solid #e2e8f0 !important;
-  padding: 12px 18px !important;
-}
-
-.product-card .inline-group .add-row a {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  color: #ffffff !important;
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
-  font-weight: 600 !important;
-  font-size: 13px !important;
-  text-decoration: none !important;
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25) !important;
-  transition: all 0.15s ease !important;
-}
-
-.product-card .inline-group .add-row a:hover {
-  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35) !important;
-}
 </style>
 {% endblock %}
 
@@ -840,8 +564,10 @@
               {% if adminform.form.image.errors %}
                 <div style="color:#dc2626; font-size:12px; font-weight:600;">{{ adminform.form.image.errors|striptags }}</div>
               {% endif %}
+            </div>
             {% block inline_field_sets %}{% endblock %}
           </div>
+
         </div>
 
         <!-- ============================================================== -->
