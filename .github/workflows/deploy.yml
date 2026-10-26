@@ -57,3 +57,21 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  deploy:
+    name: Deploy to AWS EC2
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/DevOps_2026_AnHoang
+            git pull origin main
+            ./venv/bin/python manage.py collectstatic --noinput
+            pkill -f gunicorn || true
+            ./venv/bin/gunicorn --workers 2 --threads 4 --timeout 120 --keep-alive 65 --bind 127.0.0.1:8000 web.wsgi:application --daemon
