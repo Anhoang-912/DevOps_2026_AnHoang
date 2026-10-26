@@ -8,9 +8,11 @@ from django import forms
 from django.db import models, connection
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
+from .mongo_sync import sync_products_from_mongo
 
 
 def home(request):
+    sync_products_from_mongo()
     # Lấy danh mục kèm số lượng sản phẩm
     categories = Category.objects.annotate(prod_count=models.Count('product'))
     featured_categories = categories[:4]
@@ -35,6 +37,7 @@ def home(request):
     })
 
 def product_list(request):
+    sync_products_from_mongo()
     products = Product.objects.all()
     
     # Lọc theo danh mục
