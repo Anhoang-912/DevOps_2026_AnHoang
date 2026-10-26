@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize store_tags %}
 
 {% block title %}Danh sách sản phẩm | An Hoang Store{% endblock %}
 
@@ -451,10 +451,10 @@
                             <!-- Giá tiền -->
                             <div class="product-price-row">
                                 {% if product.has_discount %}
-                                    <span class="price-current">{{ product.discount_price|intcomma }} ₫</span>
-                                    <span class="price-old">{{ product.price|intcomma }} ₫</span>
+                                    <span class="price-current">{{ product.discount_price|format_vnd }}</span>
+                                    <span class="price-old">{{ product.price|format_vnd }}</span>
                                 {% else %}
-                                    <span class="price-current">{{ product.price|intcomma }} ₫</span>
+                                    <span class="price-current">{{ product.price|format_vnd }}</span>
                                 {% endif %}
                             </div>
 

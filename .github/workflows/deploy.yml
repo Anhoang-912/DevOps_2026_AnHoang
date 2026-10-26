@@ -87,6 +87,7 @@ jobs:
             git checkout -- db.sqlite3 || true
             git pull origin main
             ./venv/bin/python manage.py migrate --noinput
+            ./venv/bin/python manage.py seed_products
             ./venv/bin/python manage.py collectstatic --noinput
             pkill -f gunicorn || true
             sleep 2

@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static humanize %}
+{% load i18n static humanize store_tags %}
 
 {% block coltype %}colM{% endblock %}
 {% block bodyclass %}{{ block.super }} dashboard-clean{% endblock %}
@@ -487,7 +487,7 @@
             </div>
             <div class="kpi-info-block">
                 <span class="kpi-label">Tổng Doanh Thu</span>
-                <span class="kpi-main-val">{{ admin_stats.total_revenue|intcomma }} <small>VNĐ</small></span>
+                <span class="kpi-main-val">{{ admin_stats.total_revenue|format_vnd }}</span>
                 <span class="kpi-sub-text">
                     <i class="fas fa-check-circle text-success"></i> Từ các đơn hoàn tất
                 </span>
@@ -596,7 +596,7 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="order-price-bold">{{ order.total|intcomma }} đ</span>
+                                <span class="order-price-bold">{{ order.total|format_vnd }}</span>
                             </td>
                             <td>
                                 {% if order.status == 'pending' %}

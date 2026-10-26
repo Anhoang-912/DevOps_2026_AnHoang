@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize store_tags %}
 
 {% block title %}Thanh toán đơn hàng | An Hoang Store{% endblock %}
 
@@ -343,14 +343,14 @@
                                     {{ item.product.name }}
                                 </span>
                             </div>
-                            <span class="fw-bold text-dark">{{ item.subtotal|intcomma }} ₫</span>
+                            <span class="fw-bold text-dark">{{ item.subtotal|format_vnd }}</span>
                         </div>
                         {% endfor %}
                     </div>
 
                     <div class="d-flex justify-content-between mb-2 small text-muted">
                         <span>Tạm tính:</span>
-                        <span>{{ total_price|intcomma }} ₫</span>
+                        <span>{{ total_price|format_vnd }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2 small text-muted">
                         <span>Phí vận chuyển:</span>
@@ -361,7 +361,7 @@
 
                     <div class="d-flex justify-content-between align-items-baseline mb-4">
                         <span class="fw-bold">Tổng thanh toán:</span>
-                        <span class="fs-4 fw-bold text-danger">{{ total_price|intcomma }} ₫</span>
+                        <span class="fs-4 fw-bold text-danger">{{ total_price|format_vnd }}</span>
                     </div>
 
                     <button type="submit" class="checkout-btn" id="submitOrderBtn">

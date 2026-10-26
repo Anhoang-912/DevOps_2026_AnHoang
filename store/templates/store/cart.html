@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize store_tags %}
 
 {% block title %}Giỏ hàng của bạn | An Hoang Store{% endblock %}
 
@@ -180,7 +180,7 @@
                                 </td>
                                 <td>
                                     <span class="fw-semibold text-dark" style="font-size: 0.92rem;">
-                                        {{ item.get_unit_price|intcomma }} ₫
+                                        {{ item.get_unit_price|format_vnd }}
                                     </span>
                                 </td>
                                 <td style="text-align: center;">
@@ -192,7 +192,7 @@
                                 </td>
                                 <td style="text-align: right;">
                                     <strong class="text-primary" id="subtotal_{{ item.id }}" style="font-size: 1rem;">
-                                        {{ item.subtotal|intcomma }} ₫
+                                        {{ item.subtotal|format_vnd }}
                                     </strong>
                                 </td>
                                 <td style="text-align: center;">
@@ -221,7 +221,7 @@
 
                 <div class="summary-row">
                     <span>Tổng tiền hàng:</span>
-                    <strong class="text-dark" id="cartTotalSum">{{ total|intcomma }} ₫</strong>
+                    <strong class="text-dark" id="cartTotalSum">{{ total|format_vnd }}</strong>
                 </div>
                 <div class="summary-row">
                     <span>Phí vận chuyển:</span>
@@ -243,7 +243,7 @@
 
                 <div class="d-flex justify-content-between align-items-baseline mb-4">
                     <span class="fw-bold fs-6">Tổng thanh toán:</span>
-                    <div class="summary-total" id="finalTotalSum">{{ total|intcomma }} ₫</div>
+                    <div class="summary-total" id="finalTotalSum">{{ total|format_vnd }}</div>
                 </div>
 
                 <!-- Nút Tiến hành thanh toán -->
@@ -303,13 +303,13 @@ function updateCartQtyAjax(itemId, delta) {
             input.value = newQty;
             const subtotalEl = document.getElementById(`subtotal_${itemId}`);
             if (subtotalEl) {
-                subtotalEl.textContent = new Intl.NumberFormat('vi-VN').format(data.subtotal) + ' ₫';
+                subtotalEl.textContent = new Intl.NumberFormat('vi-VN').format(data.subtotal) + ' đ';
             }
 
             const totalSumEl = document.getElementById('cartTotalSum');
             const finalTotalSumEl = document.getElementById('finalTotalSum');
-            if (totalSumEl) totalSumEl.textContent = new Intl.NumberFormat('vi-VN').format(data.total) + ' ₫';
-            if (finalTotalSumEl) finalTotalSumEl.textContent = new Intl.NumberFormat('vi-VN').format(data.total) + ' ₫';
+            if (totalSumEl) totalSumEl.textContent = new Intl.NumberFormat('vi-VN').format(data.total) + ' đ';
+            if (finalTotalSumEl) finalTotalSumEl.textContent = new Intl.NumberFormat('vi-VN').format(data.total) + ' đ';
 
             updateGlobalCartBadge(data.cart_items_count);
             showAppToast('Đã cập nhật số lượng giỏ hàng', 'info');

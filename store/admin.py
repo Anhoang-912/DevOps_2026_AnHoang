@@ -2,11 +2,20 @@ from django.contrib import admin
 from django.utils.html import mark_safe
 from django.contrib import messages
 from django.db.models import Count
-from django.contrib.humanize.templatetags.humanize import intcomma
 from .models import (
     Product, Category, CartItem, Order, OrderItem, Review, 
     Profile, Province, District, Ward
 )
+
+# Helper định dạng tiền tệ Việt Nam dấu chấm: ví dụ 3.500.000 đ
+def format_vnd_str(value):
+    if value is None or value == '':
+        return "0 đ"
+    try:
+        val = int(value)
+        return f"{val:,}".replace(',', '.') + " đ"
+    except Exception:
+        return f"{value} đ"
 
 # Cấu hình branding Django Admin
 admin.site.site_header = "Hệ thống Quản trị E-Commerce"
@@ -32,12 +41,12 @@ class OrderItemInline(admin.TabularInline):
     quantity_display.short_description = "Số lượng"
     
     def price_display(self, obj):
-        return f"{intcomma(obj.price)} VNĐ"
+        return format_vnd_str(obj.price)
     price_display.short_description = "Đơn giá"
     
     def subtotal_display(self, obj):
         subtotal = obj.price * obj.quantity
-        return mark_safe(f"<strong style='color:#dc2626;'>{intcomma(subtotal)} VNĐ</strong>")
+        return mark_safe(f"<strong style='color:#dc2626;'>{format_vnd_str(subtotal)}</strong>")
     subtotal_display.short_description = "Thành tiền"
     
     def has_add_permission(self, request, obj=None):
@@ -128,12 +137,12 @@ class ProductAdmin(admin.ModelAdmin):
         if obj.has_discount:
             return mark_safe(
                 f'<div style="line-height:1.35;">'
-                f'<div style="color:#ef4444; font-weight:800; font-size:13.5px;">{intcomma(obj.discount_price)} ₫ '
+                f'<div style="color:#ef4444; font-weight:800; font-size:13.5px;">{format_vnd_str(obj.discount_price)} '
                 f'<span style="background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:700; padding:2px 6px; border-radius:6px;">-{obj.discount_percent}%</span></div>'
-                f'<div style="color:#94a3b8; font-size:11.5px; text-decoration:line-through; margin-top:2px;">{intcomma(obj.price)} ₫</div>'
+                f'<div style="color:#94a3b8; font-size:11.5px; text-decoration:line-through; margin-top:2px;">{format_vnd_str(obj.price)}</div>'
                 f'</div>'
             )
-        return mark_safe(f'<strong style="color:#0f172a; font-size:13.5px;">{intcomma(obj.price)} ₫</strong>')
+        return mark_safe(f'<strong style="color:#0f172a; font-size:13.5px;">{format_vnd_str(obj.price)}</strong>')
     price_display.short_description = "Giá bán & Ưu đãi"
     price_display.admin_order_field = 'price'
 
@@ -291,7 +300,7 @@ class OrderAdmin(admin.ModelAdmin):
     payment_badge.short_description = "Thanh toán"
 
     def total_display(self, obj):
-        return mark_safe(f"<strong style='color:#0f172a;'>{intcomma(obj.total)} VNĐ</strong>")
+        return mark_safe(f"<strong style='color:#0f172a;'>{format_vnd_str(obj.total)}</strong>")
     total_display.short_description = "Tổng tiền"
     total_display.admin_order_field = 'total'
 
@@ -342,11 +351,11 @@ class OrderItemAdmin(admin.ModelAdmin):
     order_user.short_description = "Khách hàng"
     
     def price_display(self, obj):
-        return f"{intcomma(obj.price)} VNĐ"
+        return format_vnd_str(obj.price)
     price_display.short_description = "Đơn giá"
 
     def subtotal_display(self, obj):
-        return mark_safe(f"<strong>{intcomma(obj.subtotal())} VNĐ</strong>")
+        return mark_safe(f"<strong>{format_vnd_str(obj.subtotal())}</strong>")
     subtotal_display.short_description = "Thành tiền"
 
 
@@ -400,11 +409,11 @@ class CartItemAdmin(admin.ModelAdmin):
     customer_info.short_description = "Khách hàng"
 
     def unit_price_display(self, obj):
-        return f"{intcomma(obj.get_unit_price())} VNĐ"
+        return format_vnd_str(obj.get_unit_price())
     unit_price_display.short_description = "Đơn giá"
 
     def subtotal_display(self, obj):
-        return mark_safe(f"<strong style='color:#4338ca;'>{intcomma(obj.subtotal())} VNĐ</strong>")
+        return mark_safe(f"<strong style='color:#4338ca;'>{format_vnd_str(obj.subtotal())}</strong>")
     subtotal_display.short_description = "Tạm tính"
 
     def created_at_display(self, obj):

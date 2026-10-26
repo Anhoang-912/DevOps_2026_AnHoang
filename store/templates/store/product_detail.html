@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize store_tags %}
 
 {% block title %}{{ product.name }} | An Hoang Store{% endblock %}
 
@@ -339,11 +339,11 @@
                 <!-- Khối Giá tiền -->
                 <div class="detail-price-box">
                     {% if product.has_discount %}
-                        <div class="price-big-current">{{ product.discount_price|intcomma }} VNĐ</div>
-                        <div class="price-big-old">{{ product.price|intcomma }} VNĐ</div>
+                        <div class="price-big-current">{{ product.discount_price|format_vnd }}</div>
+                        <div class="price-big-old">{{ product.price|format_vnd }}</div>
                         <span class="badge bg-danger rounded-pill px-3 py-2 fw-bold">-{{ product.discount_percent }}% Tiết kiệm</span>
                     {% else %}
-                        <div class="price-big-current">{{ product.price|intcomma }} VNĐ</div>
+                        <div class="price-big-current">{{ product.price|format_vnd }}</div>
                     {% endif %}
                 </div>
 
@@ -590,9 +590,9 @@
                     <div class="fw-bold text-dark text-truncate mb-1" style="font-size: 0.9rem;">{{ r_prod.name }}</div>
                     <div class="text-danger fw-bold" style="font-size: 0.95rem;">
                         {% if r_prod.has_discount %}
-                            {{ r_prod.discount_price|intcomma }} ₫
+                            {{ r_prod.discount_price|format_vnd }}
                         {% else %}
-                            {{ r_prod.price|intcomma }} ₫
+                            {{ r_prod.price|format_vnd }}
                         {% endif %}
                     </div>
                 </a>

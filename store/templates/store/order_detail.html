@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize store_tags %}
 
 {% block title %}Chi tiết đơn hàng #{{ order.id }} | An Hoang Store{% endblock %}
 
@@ -218,9 +218,9 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ item.price|intcomma }} ₫</td>
+                                <td>{{ item.price|format_vnd }}</td>
                                 <td style="text-align: center;"><strong>{{ item.quantity }}</strong></td>
-                                <td style="text-align: right;" class="fw-bold text-primary">{{ item.subtotal|intcomma }} ₫</td>
+                                <td style="text-align: right;" class="fw-bold text-primary">{{ item.subtotal|format_vnd }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -229,7 +229,7 @@
 
                 <div class="pt-3 mt-3 border-top d-flex justify-content-between align-items-center">
                     <span class="fw-bold">Tổng thanh toán:</span>
-                    <span class="fs-4 fw-bold text-danger">{{ order.total|intcomma }} VNĐ</span>
+                    <span class="fs-4 fw-bold text-danger">{{ order.total|format_vnd }}</span>
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize store_tags %}
 
 {% block title %}Lịch sử đơn hàng | An Hoang Store{% endblock %}
 
@@ -167,10 +167,10 @@
                         </div>
                         <div>
                             <div class="fw-semibold text-dark">{{ item.product.name }}</div>
-                            <small class="text-muted">Số lượng: <strong>{{ item.quantity }}</strong> x {{ item.price|intcomma }} ₫</small>
+                            <small class="text-muted">Số lượng: <strong>{{ item.quantity }}</strong> x {{ item.price|format_vnd }}</small>
                         </div>
                     </div>
-                    <strong class="text-dark">{{ item.subtotal|intcomma }} ₫</strong>
+                    <strong class="text-dark">{{ item.subtotal|format_vnd }}</strong>
                 </div>
                 {% endfor %}
             </div>
@@ -185,7 +185,7 @@
                 <div class="d-flex align-items-center gap-3">
                     <div>
                         <span class="text-muted small">Tổng tiền:</span>
-                        <span class="fs-5 fw-bold text-danger ms-1">{{ order.total|intcomma }} ₫</span>
+                        <span class="fs-5 fw-bold text-danger ms-1">{{ order.total|format_vnd }}</span>
                     </div>
                     <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
                         Chi tiết đơn <i class="fas fa-chevron-right ms-1"></i>
