@@ -1,0 +1,16 @@
+{% load i18n admin_urls %}
+{% block object-tools-items %}
+<li>
+    {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+    <a href="{% add_preserved_filters history_url %}" class="historylink">
+        <i class="fas fa-clock-rotate-left"></i> Lịch sử thay đổi
+    </a>
+</li>
+{% if has_absolute_url %}
+<li>
+    <a href="{{ absolute_url }}" class="viewsitelink" target="_blank">
+        <i class="fas fa-arrow-up-right-from-square"></i> Xem trên web
+    </a>
+</li>
+{% endif %}
+{% endblock %}

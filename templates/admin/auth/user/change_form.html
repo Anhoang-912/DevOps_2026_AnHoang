@@ -1,0 +1,900 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static "admin/css/forms.css" %}">
+<style>
+/* ==========================================================================
+   ENTERPRISE USER MANAGEMENT CHANGE FORM (LUXURY DASHBOARD UI)
+   ========================================================================== */
+.user-dashboard-wrapper {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto 50px;
+  box-sizing: border-box;
+  padding: 0 10px;
+}
+
+/* 1. Top Header Banner */
+.user-header-banner {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px 26px;
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+.user-header-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.user-header-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4f46e5;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  flex-shrink: 0;
+}
+.user-header-avatar-placeholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 26px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+  flex-shrink: 0;
+}
+.user-title-block h1 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.user-name-highlight {
+  color: #4f46e5;
+}
+.user-badges-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.4;
+  text-decoration: none !important;
+}
+.badge-id {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+.badge-super {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+.badge-staff {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+.badge-user {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+.badge-active {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.badge-inactive {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.badge-orders {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  transition: all 0.15s ease;
+}
+.badge-orders:hover {
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+.user-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.user-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn-top-back,
+.user-header-actions .object-tools a,
+.user-header-actions .historylink {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+.btn-top-back:hover,
+.user-header-actions .object-tools a:hover,
+.user-header-actions .historylink:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 2. Quick Password Banner */
+.quick-pwd-callout {
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  border: 1.5px solid #c7d2fe;
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.08);
+}
+.quick-pwd-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.15);
+}
+.quick-pwd-body {
+  flex: 1;
+}
+.quick-pwd-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #3730a3;
+  margin-bottom: 4px;
+}
+.quick-pwd-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.quick-pwd-code {
+  background: #ffffff;
+  color: #1e1b4b;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid #c7d2fe;
+  font-family: 'Consolas', 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+.btn-copy-quick {
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+.btn-copy-quick:hover {
+  background: #4338ca;
+}
+.quick-pwd-hint {
+  font-size: 12px;
+  color: #4338ca;
+}
+
+/* 3. Main 2-Column Responsive Layout */
+.user-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 1080px) {
+  .user-layout-grid {
+    grid-template-columns: 100%;
+  }
+}
+
+.user-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+/* Fieldset Card Styling */
+fieldset.module {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+fieldset.module h2 {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  padding: 15px 22px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.form-row {
+  padding: 16px 22px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  box-sizing: border-box !important;
+}
+.form-row:last-child {
+  border-bottom: none !important;
+}
+
+.form-row label {
+  display: block !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+  float: none !important;
+  width: auto !important;
+}
+.form-row .help,
+.form-row .help-tooltip {
+  font-size: 12px !important;
+  color: #64748b !important;
+  margin-top: 5px !important;
+  line-height: 1.4 !important;
+  display: block !important;
+}
+
+/* Form inputs */
+.form-row input[type="text"],
+.form-row input[type="password"],
+.form-row input[type="email"],
+.form-row input[type="url"],
+.form-row input[type="number"],
+.form-row input[type="tel"],
+.form-row select,
+.vTextField {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 42px !important;
+  padding: 0 14px !important;
+  font-size: 13.5px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-sizing: border-box !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  font-family: inherit !important;
+  transition: all 0.15s ease !important;
+}
+.form-row textarea {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 90px !important;
+  padding: 12px 14px !important;
+  font-size: 13.5px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-sizing: border-box !important;
+  line-height: 1.5 !important;
+  font-family: inherit !important;
+  transition: all 0.15s ease !important;
+}
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+  outline: none !important;
+}
+
+/* Multi-field row layout (Họ & Tên song song) */
+.form-row:has(.field-last_name):has(.field-first_name),
+.form-row:has(.field-phone_number):has(.field-birthdate),
+.form-row:has(.field-last_login):has(.field-date_joined) {
+  display: flex !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+}
+.form-row:has(.field-last_name):has(.field-first_name) .fieldBox,
+.form-row:has(.field-phone_number):has(.field-birthdate) .fieldBox,
+.form-row:has(.field-last_login):has(.field-date_joined) .fieldBox {
+  flex: 1 !important;
+  min-width: 200px !important;
+  float: none !important;
+}
+
+/* 3 Status Switch Cards (is_active, is_staff, is_superuser) */
+.form-row:has(.field-is_active):has(.field-is_staff) {
+  display: flex !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  background: #f8fafc !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  margin: 14px 22px !important;
+  border: 1px solid #e2e8f0 !important;
+}
+.form-row:has(.field-is_active):has(.field-is_staff) .fieldBox {
+  flex: 1 !important;
+  min-width: 170px !important;
+  background: #ffffff !important;
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  float: none !important;
+  transition: all 0.15s ease !important;
+}
+.form-row:has(.field-is_active):has(.field-is_staff) .fieldBox:hover {
+  border-color: #4f46e5 !important;
+}
+.form-row:has(.field-is_active):has(.field-is_staff) .fieldBox input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  accent-color: #4f46e5 !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+}
+.form-row:has(.field-is_active):has(.field-is_staff) .fieldBox label {
+  margin: 0 !important;
+  cursor: pointer !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  color: #0f172a !important;
+}
+
+/* 4. Password Security Widget */
+.secure-password-widget {
+  width: 100% !important;
+}
+.secure-password-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.secure-card-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.secure-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+}
+.btn-change-pwd {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  padding: 8px 18px !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  text-decoration: none !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28) !important;
+  transition: all 0.15s ease !important;
+}
+.btn-change-pwd:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  transform: translateY(-1px);
+}
+.secure-hash-collapse {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.secure-hash-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.secure-hash-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.secure-hash-item {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.secure-hash-item code {
+  color: #4f46e5;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+/* 5. Profile Inline Styling */
+.inline-group {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+.inline-group h2 {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  padding: 15px 22px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+.inline-related fieldset.module {
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* 6. Sticky Sidebar (350px) */
+.user-side-col {
+  position: sticky;
+  top: 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.user-side-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  box-sizing: border-box;
+}
+.user-side-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.activity-stat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.activity-stat-item .stat-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-weight: 600;
+}
+.activity-stat-item .stat-link {
+  font-weight: 700;
+  color: #4f46e5;
+  text-decoration: none;
+  background: #e0e7ff;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.activity-stat-item .stat-link:hover {
+  background: #c7d2fe;
+}
+.activity-stat-item .stat-val {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Submit Row in Side Card */
+.user-side-card .submit-row {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+.user-side-card .submit-row input[type="submit"].default {
+  width: 100% !important;
+  padding: 11px 18px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.user-side-card .submit-row input[type="submit"].default:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%) !important;
+  transform: translateY(-1px) !important;
+}
+.user-side-card .submit-row input[type="submit"] {
+  width: 100% !important;
+  padding: 10px 16px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.user-side-card .submit-row input[type="submit"]:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+.user-side-card .submit-row .deletelink {
+  width: 100% !important;
+  justify-content: center !important;
+  padding: 9px !important;
+  border-radius: 8px !important;
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1.5px solid #fecaca !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+  margin-top: 4px !important;
+}
+.user-side-card .submit-row .deletelink:hover {
+  background: #fee2e2 !important;
+}
+
+/* Add User Form Centering */
+.user-add-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+</style>
+{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}"><i class="fas fa-chart-pie me-1"></i> Bảng điều khiển</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">Tài khoản & Phân quyền</a>
+  &rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+  &rsaquo; <span style="color:#0f172a; font-weight:700;">{% if add %}Thêm mới người dùng{% else %}{{ original.username }}{% endif %}</span>
+</div>
+{% endblock %}
+{% endif %}
+
+{% block content %}
+<div class="user-dashboard-wrapper">
+
+  <!-- 1. HEADER BANNER THÔNG TIN NGƯỜI DÙNG -->
+  <div class="user-header-banner">
+    <div class="user-header-left">
+      {% if add %}
+        <div class="user-header-avatar-placeholder" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="user-title-block">
+          <h1>Thêm Mới Người Dùng</h1>
+          <p class="user-subtitle">Tạo tài khoản người dùng mới và thiết lập thông tin ban đầu.</p>
+        </div>
+      {% else %}
+        {% if original.profile.avatar %}
+          <img src="{{ original.profile.avatar.url }}" class="user-header-avatar" alt="{{ original.username }}">
+        {% else %}
+          <div class="user-header-avatar-placeholder">
+            <i class="fas fa-user-shield"></i>
+          </div>
+        {% endif %}
+        <div class="user-title-block">
+          <h1>
+            Chỉnh Sửa Người Dùng: <span class="user-name-highlight">{{ original.username }}</span>
+          </h1>
+          <div class="user-badges-row">
+            <span class="badge-pill badge-id">#{{ original.id }}</span>
+            {% if original.is_superuser %}
+              <span class="badge-pill badge-super"><i class="fas fa-crown"></i> Siêu Quản Trị</span>
+            {% elif original.is_staff %}
+              <span class="badge-pill badge-staff"><i class="fas fa-user-tie"></i> Quản Trị Viên</span>
+            {% else %}
+              <span class="badge-pill badge-user"><i class="fas fa-user"></i> Khách Hàng</span>
+            {% endif %}
+
+            {% if original.is_active %}
+              <span class="badge-pill badge-active"><i class="fas fa-circle-check"></i> Đang hoạt động</span>
+            {% else %}
+              <span class="badge-pill badge-inactive"><i class="fas fa-circle-xmark"></i> Bị khóa</span>
+            {% endif %}
+
+            {% if original.order_set.count > 0 %}
+              <a href="/admin/store/order/?user__id__exact={{ original.id }}" class="badge-pill badge-orders" title="Bấm xem danh sách đơn hàng">
+                <i class="fas fa-bag-shopping"></i> {{ original.order_set.count }} đơn hàng
+              </a>
+            {% endif %}
+          </div>
+          <p class="user-subtitle">
+            Họ & Tên: <strong>{{ original.get_full_name|default:"Chưa cập nhật" }}</strong> • Email: <strong>{{ original.email|default:"Chưa cập nhật" }}</strong> • SĐT: <strong>{{ original.profile.phone_number|default:"Chưa cập nhật" }}</strong>
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="user-header-actions">
+      {% block object-tools %}
+      {% if change and not is_popup %}
+        <ul class="object-tools" style="margin:0; padding:0; display:flex; gap:8px; list-style:none;">
+          {% block object-tools-items %}
+            {% change_form_object_tools %}
+          {% endblock %}
+        </ul>
+      {% endif %}
+      {% endblock %}
+      <a href="{% url opts|admin_urlname:'changelist' %}" class="btn-top-back">
+        <i class="fas fa-arrow-left"></i> Quay lại
+      </a>
+    </div>
+  </div>
+
+  <!-- 2. QUICK PASSWORD BANNER (NẾU PROFILE CÓ PLAIN_PASSWORD) -->
+  {% if change and original and original.profile.plain_password %}
+  <div class="quick-pwd-callout">
+    <div class="quick-pwd-icon">
+      <i class="fas fa-key"></i>
+    </div>
+    <div class="quick-pwd-body">
+      <div class="quick-pwd-title"><i class="fas fa-shield-halved"></i> Mật khẩu hiển thị nhanh (Dành cho Quản trị viên hỗ trợ khách hàng):</div>
+      <div class="quick-pwd-row">
+        <code class="quick-pwd-code" id="quickPwdText">{{ original.profile.plain_password }}</code>
+        <button type="button" class="btn-copy-quick" onclick="navigator.clipboard.writeText('{{ original.profile.plain_password }}'); alert('Đã sao chép mật khẩu: {{ original.profile.plain_password }}');">
+          <i class="fas fa-copy"></i> Sao chép
+        </button>
+        <span class="quick-pwd-hint">Mật khẩu này được trích xuất từ hồ sơ Profile để bạn dễ dàng hỗ trợ khi khách hàng quên mật khẩu.</span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 3. FORM XỬ LÝ -->
+  <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}
+  <div>
+    {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+    {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+    {% if errors %}
+      <div class="errornote" style="padding:14px 18px; border-radius:10px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; margin-bottom:20px; font-weight:600; display:flex; align-items:center; gap:8px;">
+        <i class="fas fa-circle-exclamation text-danger" style="font-size:18px;"></i>
+        <div>Vui lòng kiểm tra lại các trường lỗi bên dưới trước khi lưu thay đổi.</div>
+      </div>
+      {{ adminform.form.non_field_errors }}
+    {% endif %}
+
+    {% if add %}
+      <!-- TRƯỜNG HỢP THÊM MỚI NGƯỜI DÙNG: LAYOUT ĐƠN GIẢN, GỌN GÀNG -->
+      <div class="user-add-container">
+        {% for fieldset in adminform %}
+          {% include "admin/includes/fieldset.html" with heading_level=2 prefix="fieldset" id_prefix=0 id_suffix=forloop.counter0 %}
+        {% endfor %}
+        <div style="margin-top: 20px;">
+          {% submit_row %}
+        </div>
+      </div>
+    {% else %}
+      <!-- TRƯỜNG HỢP CHỈNH SỬA NGƯỜI DÙNG: 2 CỘT HIỆN ĐẠI -->
+      <div class="user-layout-grid">
+
+        <!-- CỘT TRÁI (MINMAX 1FR): THÔNG TIN ĐĂNG NHẬP, THÔNG TIN CÁ NHÂN, PHÂN QUYỀN, PROFILE -->
+        <div class="user-main-col">
+          {% block field_sets %}
+          {% for fieldset in adminform %}
+            {% include "admin/includes/fieldset.html" with heading_level=2 prefix="fieldset" id_prefix=0 id_suffix=forloop.counter0 %}
+          {% endfor %}
+          {% endblock %}
+
+          {% block inline_field_sets %}
+          {% for inline_admin_formset in inline_admin_formsets %}
+              {% include inline_admin_formset.opts.template %}
+          {% endfor %}
+          {% endblock %}
+        </div>
+
+        <!-- CỘT PHẢI (STICKY 350PX): TỔNG HỢP, HOẠT ĐỘNG, NÚT HÀNH ĐỘNG -->
+        <div class="user-side-col">
+
+          <!-- Card 1: Hoạt Động & Mua Sắm -->
+          <div class="user-side-card">
+            <div class="user-side-title">
+              <i class="fas fa-chart-pie text-primary"></i>
+              <span>Hoạt Động & Mua Sắm</span>
+            </div>
+            <div class="activity-stat-list">
+              <div class="activity-stat-item">
+                <div class="stat-left">
+                  <i class="fas fa-receipt text-indigo"></i>
+                  <span>Đơn hàng đã đặt</span>
+                </div>
+                <div>
+                  {% if original.order_set.count > 0 %}
+                    <a href="/admin/store/order/?user__id__exact={{ original.id }}" class="stat-link">
+                      {{ original.order_set.count }} đơn
+                    </a>
+                  {% else %}
+                    <span class="stat-val" style="color:#94a3b8;">0 đơn</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="activity-stat-item">
+                <div class="stat-left">
+                  <i class="fas fa-cart-shopping text-emerald"></i>
+                  <span>Sản phẩm trong giỏ</span>
+                </div>
+                <div>
+                  <span class="stat-val">{{ original.cartitem_set.count }} món</span>
+                </div>
+              </div>
+
+              <div class="activity-stat-item">
+                <div class="stat-left">
+                  <i class="fas fa-star text-warning"></i>
+                  <span>Đánh giá đã gửi</span>
+                </div>
+                <div>
+                  <span class="stat-val">{{ original.review_set.count }} bài</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Nút Lưu & Hành Động (Sticky) -->
+          <div class="user-side-card" style="box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);">
+            <div class="user-side-title">
+              <i class="fas fa-floppy-disk text-primary"></i>
+              <span>Hành Động & Lưu Trữ</span>
+            </div>
+            {% submit_row %}
+          </div>
+
+        </div>
+
+      </div>
+    {% endif %}
+
+    {% block admin_change_form_document_ready %}
+      <script id="django-admin-form-add-constants"
+              src="{% static 'admin/js/change_form.js' %}"
+              {% if adminform and add %}
+                  data-model-name="{{ opts.model_name }}"
+              {% endif %}
+              async>
+      </script>
+    {% endblock %}
+
+    {% prepopulated_fields_js %}
+
+  </div>
+  </form>
+</div>
+{% endblock %}
